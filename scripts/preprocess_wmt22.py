@@ -3,7 +3,7 @@ import glob
 
 # Paths
 data_dir = "abstracts/"  # Adjust this if necessary
-output_file = "parallel_corpus.tsv"  # Tab-separated output file
+output_file = "data/parallel_corpus.tsv"  # Tab-separated output file
 
 # Collect all file names
 en_files = glob.glob(os.path.join(data_dir, "*_en.txt"))
