@@ -41,14 +41,17 @@ We use **SentencePiece for tokenization**, a **GRU-based seq2seq model with atte
 ├── models/
 │   ├── spm_ru_en.model            # SentencePiece model
 │   ├── model_checkpoint.pt        # Trained model checkpoint
+├── old_files/
+|   ├── [...]                      # Old files to be deleted   
 ├── scripts/
+│   ├── apply_sentencepiece.py     # Tokenize dataset using SentencePiece
 │   ├── preprocess_wmt22.py        # Data extraction script
 │   ├── sentencepiece_train.py     # Train SentencePiece tokenizer
-│   ├── apply_sentencepiece.py     # Tokenize dataset using SentencePiece
 │   ├── seq2seq_model.py           # PyTorch seq2seq model
 │   ├── seq2seq_train.py           # Training script
 │   ├── translate_wmt_test.py      # Inference script (translation)
 ├── README.md                      # This file
+├── requirements.txt               # Lists dependencies 
 ```
 
 ---
