@@ -2,9 +2,9 @@ import sentencepiece as spm
 import pandas as pd
 
 # Paths
-train_file = "parallel_corpus.tsv"  # Original training data
-output_file = "spm_parallel_corpus.tsv"  # Tokenized output file
-sp_model = "spm_ru_en.model"
+train_file = "data/parallel_corpus.tsv"  # Original training data
+output_file = "data/spm_parallel_corpus.tsv"  # Tokenized output file
+sp_model = "models/spm_ru_en.model"
 
 # Load SentencePiece model
 sp = spm.SentencePieceProcessor(model_file=sp_model)
