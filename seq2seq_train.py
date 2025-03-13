@@ -1,10 +1,10 @@
 """seq2seq_train.py"""
+import time
+import random
+import pandas as pd
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import random
-import time
-import pandas as pd
 from seq2seq_model import EncoderRNN, AttnDecoderRNN, tensors_from_pair
 
 # Paths
@@ -83,8 +83,7 @@ def train_epoch(encoder, decoder, optimizer, criterion):
         
         # Store encoder outputs (using the correct size)
         encoder_outputs[:encoder_output.size(0)] = encoder_output
-        
-        # Continue with the rest of your training code...
+
         # (Using current_batch_size instead of batch_size)
         decoder_input = torch.full((current_batch_size,), 0, dtype=torch.long, device=device)
         decoder_hidden = encoder_hidden
@@ -92,13 +91,12 @@ def train_epoch(encoder, decoder, optimizer, criterion):
         use_teacher_forcing = random.random() < teacher_forcing_ratio
 
         for di in range(tgt_batch.size(0)):
-            #decoder_output, decoder_hidden = decoder(decoder_input.squeeze(1), encoder_outputs, decoder_hidden)
             decoder_output, decoder_hidden = decoder(decoder_input, encoder_outputs, decoder_hidden)
             loss += criterion(decoder_output, tgt_batch[di])
 
             if use_teacher_forcing:
-                decoder_input = tgt_batch[di]  # Already has shape [batch_size]
-                #decoder_input = tgt_batch[di].unsqueeze(1)  # Ensure correct shape for next step
+                decoder_input = tgt_batch[di] 
+    
             else:
                 topv, topi = decoder_output.topk(1)
                 #decoder_input = topi.squeeze().detach().unsqueeze(1)
