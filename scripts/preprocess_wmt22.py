@@ -3,11 +3,15 @@ import glob
 
 # Paths
 data_dir = "abstracts/"  # Adjust this if necessary
-output_file = "data/parallel_corpus.tsv"  # Tab-separated output file
+output_parallel_file = "data/parallel_corpus.tsv"  # Parallel training corpus
+output_test_raw_file = "data/test_raw_ru.txt"  # Raw Russian test data
 
 # Collect all file names
-en_files = glob.glob(os.path.join(data_dir, "*_en.txt"))
-ru_files = glob.glob(os.path.join(data_dir, "*_ru.txt"))
+en_files = sorted(glob.glob(os.path.join(data_dir, "*_en.txt")))
+ru_files = sorted(glob.glob(os.path.join(data_dir, "*_ru.txt")))
+
+# Ensure we have matching pairs
+assert len(en_files) == len(ru_files), "Mismatch between English and Russian files!"
 
 # Create a dictionary to store matched pairs
 paired_data = {}
@@ -27,12 +31,22 @@ for ru_file in ru_files:
         if pmid in paired_data:
             paired_data[pmid]["ru"] = ru_text  # Add Russian text
 
-# Write to a tab-separated file (only fully matched pairs)
-with open(output_file, "w", encoding="utf-8") as out_f:
-    out_f.write("English\tRussian\n")  # Header
+# Write parallel corpus to file
+with open(output_parallel_file, "w", encoding="utf-8") as out_f:
+    out_f.write("Russian\tEnglish\n")  # Header (Switched order for ru → en)
     for pmid, texts in paired_data.items():
         if "en" in texts and "ru" in texts:
-            out_f.write(f"{texts['en']}\t{texts['ru']}\n")
+            out_f.write(f"{texts['ru']}\t{texts['en']}\n")  # Switched order
 
-print(f"Preprocessing complete. Saved {len(paired_data)} sentence pairs to {output_file}")
+print(f"Preprocessing complete. Saved {len(paired_data)} sentence pairs to {output_parallel_file}")
 
+# Extract test set (raw Russian abstracts)
+test_size = 50  # Adjust this as needed
+test_ru_files = ru_files[-test_size:]  # Assume last 'test_size' files are test data
+
+with open(output_test_raw_file, "w", encoding="utf-8") as test_f:
+    for ru_file in test_ru_files:
+        with open(ru_file, "r", encoding="utf-8") as ru_f:
+            test_f.write(ru_f.read().strip() + "\n")
+
+print(f"Raw test Russian abstracts saved to {output_test_raw_file}")

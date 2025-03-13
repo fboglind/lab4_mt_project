@@ -90,10 +90,11 @@ This creates:
 
 ### 3️⃣ Prepare the Test Data
 
-Run:
+Run the same script again:
 
 ```bash
-python3 scripts/apply_sentencepiece.py --input test_raw_ru.txt --output test_preprocessed_ru.txt
+python3 scripts/apply_sentencepiece.py --input data/test_raw_ru.txt --output data/test_preprocessed_ru.txt
+
 ```
 
 ---
