@@ -21,3 +21,4 @@ Thumbs.db
 
 # Ignore these directories
 wmt_devsets/
+to_server/
