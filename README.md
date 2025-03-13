@@ -14,7 +14,7 @@ We use **SentencePiece for tokenization**, a **GRU-based seq2seq model with atte
 
 ### 2️⃣ Preprocessing
 - **Text cleaning & normalization**.
-- **Tokenization** using **SentencePiece** instead of Moses/BPE.
+- **Tokenization** using **SentencePiece**
 - **Conversion to tensors** for PyTorch training.
 
 ### 3️⃣ Model Training
@@ -31,7 +31,7 @@ We use **SentencePiece for tokenization**, a **GRU-based seq2seq model with atte
 
 ---
 
-## 📂 Directory Structure
+## 📂 Directory Structure (intended)
 
 ```
 ├── data/                          # Folder for dataset & processed files
@@ -56,7 +56,7 @@ We use **SentencePiece for tokenization**, a **GRU-based seq2seq model with atte
 ## 1. Data Collection
 
 1. Download the WMT22 dataset and extract parallel Russian-English abstracts.
-2. Save the file as `parallel_corpus.tsv` (tab-separated, Russian ↔ English).
+2. Run `preprocess_wmt22.py` to create the file `parallel_corpus.tsv` (tab-separated, Russian ↔ English).
 
 ---
 
