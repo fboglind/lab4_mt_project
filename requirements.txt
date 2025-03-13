@@ -154,6 +154,7 @@ scikit-learn @ file:///croot/scikit-learn_1737988764076/work
 scipy @ file:///croot/scipy_1737122901252/work/dist/scipy-1.15.1-cp310-cp310-linux_x86_64.whl#sha256=3a9bc1330ec4c8e1a3d5149a796c2a8a571e7b44f1336cfc344c247fed4c0eea
 seaborn @ file:///croot/seaborn_1718302919398/work
 Send2Trash @ file:///home/conda/feedstock_root/build_artifacts/send2trash_1733322040660/work
+sentencepiece==0.2.0
 sip @ file:///croot/sip_1736541134699/work
 six @ file:///home/conda/feedstock_root/build_artifacts/six_1733380938961/work
 sklearn-compat==0.1.3

@@ -21,13 +21,13 @@ max_length = 512
 
 # Load dataset
 print("Loading training data...")
-df = pd.read_csv(train_file, sep="\t", encoding="utf-8").dropna()
+df = pd.read_csv("spm_parallel_corpus.tsv", sep="\t", encoding="utf-8").dropna()
 
-# Create vocab mappings
-src_vocab = {word: i for i, word in enumerate(set(" ".join(df["English"]).split()))}
-tgt_vocab = {word: i for i, word in enumerate(set(" ".join(df["Russian"]).split()))}
+# Define source and target: Russian → English
+src_vocab = {word: i for i, word in enumerate(set(" ".join(df["Russian"]).split()))}
+tgt_vocab = {word: i for i, word in enumerate(set(" ".join(df["English"]).split()))}
 
-print(f"Vocab size: EN = {len(src_vocab)}, RU = {len(tgt_vocab)}")
+print(f"Vocab size: RU = {len(src_vocab)}, EN = {len(tgt_vocab)}")
 
 # Initialize models
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

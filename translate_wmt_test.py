@@ -1,25 +1,20 @@
 import torch
-import argparse
-from sacremoses import MosesTokenizer, MosesDetokenizer
+import sentencepiece as spm
 from subword_nmt.apply_bpe import BPE
 from seq2seq_model import EncoderRNN, AttnDecoderRNN, tensor_from_sentence
-import os
+
 
 # Paths
-test_input_file = "test_preprocessed_en.txt"  # Input: English test abstracts (after Moses + BPE)
-output_translation_file = "wmt_test_translations.txt"  # Output: Translated Russian abstracts
-bpe_model_file = "bpe_model.codes"
+sp_model = "spm_ru_en.model"  # SentencePiece model path
+test_input_file = "test_preprocessed_ru.txt"  # Input: Russian test abstracts (after SentencePiece)
+output_translation_file = "wmt_test_translations.txt"  # Output: Translated English abstracts
 checkpoint_file = "model_checkpoint.pt"  # Modify if your model is saved under a different name
 
-# Load tokenizers
-mt_en = MosesTokenizer(lang='en')
-md_ru = MosesDetokenizer(lang='ru')
 
-# Load BPE model
-print("Loading BPE model...")
-with open(bpe_model_file, "r", encoding="utf-8") as bpe_file:
-    bpe = BPE(bpe_file)
-print("BPE model loaded.")
+# Load SentencePiece model
+print("Loading SentencePiece model...")
+sp = spm.SentencePieceProcessor(model_file=sp_model)
+print("SentencePiece model loaded.")
 
 # Load model checkpoint
 print("Loading model checkpoint from:", checkpoint_file)
@@ -30,7 +25,6 @@ hidden_size = checkpoint["hidden_size"]
 src_vocab = checkpoint["src_vocab"]
 tgt_vocab = checkpoint["tgt_vocab"]
 tgt_index2word = {index: word for word, index in tgt_vocab.items()}  # Reverse mapping
-
 
 # Initialize encoder and decoder models
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -46,26 +40,19 @@ print("Model loaded successfully.")
 
 # Function to preprocess input text
 def preprocess_text(text):
-    tokenized = " ".join(mt_en.tokenize(text))  # Moses Tokenization
-    bpe_encoded = " ".join(bpe.process_line(tokenized))  # Apply BPE
-    return bpe_encoded
+    return " ".join(sp.encode(text, out_type=str))
 
 # Function to translate a single abstract
 def translate_sentence(sentence, encoder, decoder, src_vocab, tgt_vocab, max_length=512):
     input_tensor = tensor_from_sentence(src_vocab, preprocess_text(sentence)).unsqueeze(1).to(device)
-    input_length = input_tensor.size(0)
     
-    # Initialize hidden state for batch size 1
     encoder_hidden = encoder.get_initial_hidden_state(batch_size=1)
-
-    # Pass input through encoder
     encoder_outputs = torch.zeros(max_length, 1, encoder.hidden_size, device=device)
+    
     embedded = encoder.embedding(input_tensor)
     encoder_output, encoder_hidden = encoder.gru(embedded, encoder_hidden)
-
     encoder_outputs[:encoder_output.size(0)] = encoder_output
 
-    # Decoder initialization
     decoder_input = torch.tensor([[0]], device=device)  # SOS token
     decoder_hidden = encoder_hidden
     decoded_words = []
@@ -77,16 +64,13 @@ def translate_sentence(sentence, encoder, decoder, src_vocab, tgt_vocab, max_len
         if topi.item() == 1:  # EOS token
             break
         else:
-            word = tgt_index2word.get(topi.item(), "<UNK>")  # Correctly map index to word
+            word = tgt_index2word.get(topi.item(), "<UNK>")  
             decoded_words.append(word)
 
         decoder_input = topi.detach()
 
-    # **Fix: Properly remove BPE and detokenize**
-    translation = " ".join(decoded_words)
-    translation = bpe.decode(translation)  # Ensure correct BPE decoding
-    translation = md_ru.detokenize(translation.split())  # Final detokenization
-
+    # **Fix: Properly detokenize**
+    translation = sp.decode(decoded_words)  # Ensure correct SentencePiece decoding
     return translation
 
 
