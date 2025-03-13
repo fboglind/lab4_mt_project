@@ -82,7 +82,7 @@ This generates:
 Tokenize the dataset for model training:
 
 ```bash
-python3 scripts/apply_sentencepiece.py
+python3 scripts/apply_sentencepiece.py --input data/parallel_corpus.tsv --output data/spm_parallel_corpus.tsv --is_parallel
 ```
 
 This creates:

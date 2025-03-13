@@ -33,7 +33,7 @@ for ru_file in ru_files:
 
 # Write parallel corpus to file
 with open(output_parallel_file, "w", encoding="utf-8") as out_f:
-    out_f.write("Russian\tEnglish\n")  # Header (Switched order for ru → en)
+    out_f.write("Russian\tEnglish\n") # Header
     for pmid, texts in paired_data.items():
         if "en" in texts and "ru" in texts:
             out_f.write(f"{texts['ru']}\t{texts['en']}\n")  # Switched order
