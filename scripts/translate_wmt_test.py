@@ -5,7 +5,7 @@ from seq2seq_model import EncoderRNN, AttnDecoderRNN, tensor_from_sentence
 
 
 # Paths
-sp_model = "spm_ru_en.model"  # SentencePiece model path
+sp_model = "models/spm_ru_en.model"  # SentencePiece model path
 test_input_file = "test_preprocessed_ru.txt"  # Input: Russian test abstracts (after SentencePiece)
 output_translation_file = "wmt_test_translations.txt"  # Output: Translated English abstracts
 checkpoint_file = "model_checkpoint.pt"  # Modify if your model is saved under a different name
