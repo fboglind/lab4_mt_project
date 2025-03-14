@@ -13,7 +13,7 @@ env/
 *.json
 *.log
 *.out
-*.pt  # PyTorch checkpoint files
+*.pt
 
 # Ignore system-specific files
 .DS_Store
