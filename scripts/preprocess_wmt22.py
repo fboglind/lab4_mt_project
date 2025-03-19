@@ -7,21 +7,15 @@ output_parallel_file = "data/parallel_corpus.tsv"  # Parallel training corpus
 output_test_raw_file = "data/test_raw_ru.txt"  # Raw Russian test data
 
 # Collect all file names
-en_files = sorted(glob.glob(os.path.join(data_dir, "*_en.txt")))
 ru_files = sorted(glob.glob(os.path.join(data_dir, "*_ru.txt")))
+en_files = sorted(glob.glob(os.path.join(data_dir, "*_en.txt")))
+
 
 # Ensure we have matching pairs
 assert len(en_files) == len(ru_files), "Mismatch between English and Russian files!"
 
 # Create a dictionary to store matched pairs
 paired_data = {}
-
-# Process English files
-for en_file in en_files:
-    pmid = os.path.basename(en_file).split("_")[0]  # Extract PMID
-    with open(en_file, "r", encoding="utf-8") as f:
-        en_text = f.read().strip()
-        paired_data[pmid] = {"en": en_text}
 
 # Process Russian files
 for ru_file in ru_files:
@@ -30,6 +24,13 @@ for ru_file in ru_files:
         ru_text = f.read().strip()
         if pmid in paired_data:
             paired_data[pmid]["ru"] = ru_text  # Add Russian text
+
+# Process English files
+for en_file in en_files:
+    pmid = os.path.basename(en_file).split("_")[0]  # Extract PMID
+    with open(en_file, "r", encoding="utf-8") as f:
+        en_text = f.read().strip()
+        paired_data[pmid] = {"en": en_text}
 
 # Write parallel corpus to file
 with open(output_parallel_file, "w", encoding="utf-8") as out_f:
