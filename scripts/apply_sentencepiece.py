@@ -20,7 +20,7 @@ if args.is_parallel:
 
     # Apply SentencePiece tokenization
     df["Russian"] = df["Russian"].apply(lambda x: " ".join(sp.encode(x, out_type=str)))
-    df["English"] = df["English"].apply(lambda x: " ".join(sp.encode(x, out_type=str)))
+    #df["English"] = df["English"].apply(lambda x: " ".join(sp.encode(x, out_type=str))) # Uncomment for parallel spm corpus
 
     # Save tokenized parallel corpus
     df.to_csv(args.output, sep="\t", index=False, encoding="utf-8")

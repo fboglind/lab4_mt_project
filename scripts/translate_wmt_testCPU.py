@@ -26,7 +26,9 @@ class Translator:
         self.max_length = max_length
         
         # Determine device
-        self.device = device or torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        #self.device = device or torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cpu")  # Force CPU execution
+
 
         print(f"Translating on: {self.device}")
             
@@ -41,7 +43,6 @@ class Translator:
         try:
             print(f"Loading SentencePiece model from {self.sp_model_path}...")
             self.sp = spm.SentencePieceProcessor(model_file=self.sp_model_path)
-            print("Vocab size at inference:", self.sp.get_piece_size())
             print("SentencePiece model loaded successfully")
         except Exception as e:
             print(f"Error loading SentencePiece model: {str(e)}")
@@ -53,10 +54,12 @@ class Translator:
             print(f"Loading model checkpoint from {self.model_path}...")
             
             # Load checkpoint
-            checkpoint = torch.load(
-                self.model_path, 
-                map_location=self.device
-            )   
+            checkpoint = torch.load(self.model_path, map_location="cpu") #Force cpu
+
+            #checkpoint = torch.load(
+            #    self.model_path, 
+            #    map_location=self.device
+            #)   
             
             # Extract model parameters and vocabularies
             self.src_vocab = checkpoint.get("src_vocab") or checkpoint.get("src_vocab")
@@ -75,9 +78,13 @@ class Translator:
             hidden_size = checkpoint.get("hidden_size", 256)
             
             # Initialize models
-            self.encoder = GRUEncoder(len(self.src_vocab), hidden_size).to(self.device)
-            self.decoder = GRUAttnDecoder(hidden_size, len(self.tgt_vocab)).to(self.device)
+            #self.encoder = GRUEncoder(len(self.src_vocab), hidden_size).to(self.device)
+            #self.decoder = GRUAttnDecoder(hidden_size, len(self.tgt_vocab)).to(self.device)
             
+            self.encoder = GRUEncoder(len(self.src_vocab), hidden_size).to("cpu") # CPU
+            self.decoder = GRUAttnDecoder(hidden_size, len(self.tgt_vocab)).to("cpu") # CPU
+
+
             # Load state dictionaries
             encoder_state_dict = checkpoint.get("encoder_state_dict") or checkpoint.get("enc_state")
             decoder_state_dict = checkpoint.get("decoder_state_dict") or checkpoint.get("dec_state")
