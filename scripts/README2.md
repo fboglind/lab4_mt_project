@@ -59,8 +59,7 @@ We use **SentencePiece for tokenization**, a **GRU-based seq2seq model with atte
 ## 1. Data Collection
 
 1. Download the WMT22 dataset and extract parallel Russian-English abstracts.
-~~2. Run `preprocess_wmt22.py` to create the file `parallel_corpus.tsv` (tab-separated, Russian ↔ English).~~
-2. For uni-language spm training, extract Russian sentences only: `cut -f 1 parallel_corpus.tsv > russian_corpus.tsv`
+2. Run `preprocess_wmt22.py` to create the file `parallel_corpus.tsv` (tab-separated, Russian ↔ English).
 
 ---
 
@@ -83,20 +82,17 @@ This generates:
 Tokenize the dataset for model training:
 
 ```bash
-~~python3 scripts/apply_sentencepiece.py --input data/parallel_corpus.tsv --output data/spm_parallel_corpus.tsv --is_parallel~~
-python3 scripts/apply_sentencepiece.py --input data/russian_corpus.tsv --output data/spm_russian_corpus.tsv --model models/spm_ru_only.model`
+python3 scripts/apply_sentencepiece.py --input data/parallel_corpus.tsv --output data/spm_parallel_corpus.tsv --is_parallel
 ```
 
 This creates:
-~~- **`spm_parallel_corpus.tsv`** (Tokenized dataset).~~
-**`spm_russian_corpus.tsv`** (Tokenized dataset)
+- **`spm_parallel_corpus.tsv`** (Tokenized dataset).
 
 ### 3️⃣ Prepare the Test Data
 
 Run the same script again:
 
 ```bash
-python3 scripts/apply_sentencepiece.py --input data/test_raw_ru.txt --output data/test_preprocessed_ru.txt
 python3 scripts/apply_sentencepiece.py --input data/test_raw_ru.txt --output data/test_preprocessed_ru.txt
 
 ```
