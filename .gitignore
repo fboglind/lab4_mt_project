@@ -15,7 +15,8 @@ lab4env/
 *.log
 *.out
 *.pt
-
+*.model
+*vocab
 # Ignore system-specific files
 .DS_Store
 Thumbs.db
@@ -25,3 +26,5 @@ wmt_devsets/
 to_server/
 abstracts/
 data/
+models/
+output/
