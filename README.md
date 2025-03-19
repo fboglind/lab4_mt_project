@@ -60,6 +60,7 @@ We use **SentencePiece for tokenization**, a **GRU-based seq2seq model with atte
 
 1. Download the WMT22 dataset and extract parallel Russian-English abstracts.
 2. Run `preprocess_wmt22.py` to create the file `parallel_corpus.tsv` (tab-separated, Russian ↔ English).
+3. Optional for uni-language spm training, extract Russian sentences only: `cut -f 1 parallel_corpus.tsv > russian_corpus.tsv`
 
 ---
 
