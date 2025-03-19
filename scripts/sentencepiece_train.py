@@ -1,8 +1,8 @@
 import sentencepiece as spm
 import os
 # Paths
-train_file = "data/parallel_corpus.tsv"
-sp_model_prefix = "spm_ru_only"
+train_file = "data/russian_corpus.tsv" #"data/parallel_corpus.tsv"
+sp_model_prefix = "spm_ru_only" # spm_ru_en
 vocab_size = 30000  # Adjust if needed
 
 output_dir = "models/"
