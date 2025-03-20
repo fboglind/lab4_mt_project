@@ -27,7 +27,7 @@ import os
 parser = argparse.ArgumentParser(description="Apply SentencePiece tokenization to text data.")
 parser.add_argument("--input", required=True, help="Input file (raw text or parallel corpus)")
 parser.add_argument("--output", required=True, help="Output file (tokenized text)")
-parser.add_argument("--model", default="models/spm_ru.model", help="SentencePiece model file")
+parser.add_argument("--model", default="models/spm_ru_only.model", help="SentencePiece model file")
 parser.add_argument("--to_parallel", action="store_true", help="Specify if output should be a parallel model")
 parser.add_argument("--is_test_set", action="store_true", help="Specify if input is a test set")
 args = parser.parse_args()

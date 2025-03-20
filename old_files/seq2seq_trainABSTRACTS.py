@@ -463,7 +463,7 @@ def main():
     learning_rate = 0.0005
     batch_size = 32
     teacher_forcing_ratio = 0.5
-    max_length = 256
+    max_length = 512
     
     # Initialize data loader
     dataloader = DataLoader(
