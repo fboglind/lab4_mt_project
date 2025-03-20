@@ -211,7 +211,10 @@ class Trainer:
         )
         
         # Initialize loss function
-        self.criterion = nn.NLLLoss(ignore_index=dataloader.special_tokens["PAD"])
+        # self.criterion = nn.NLLLoss(ignore_index=dataloader.special_tokens["PAD"])
+        # Use CrossEntropyLoss with label smoothing
+        self.criterion = nn.CrossEntropyLoss(label_smoothing=0.1, ignore_index=dataloader.special_tokens["PAD"])
+
         
         # Initialize best loss for checkpointing
         self.best_loss = float('inf')
@@ -451,7 +454,7 @@ class Trainer:
 def main():
     """Main function to run training"""
     # Paths
-    train_file = "data/spm_parallel_corpus.tsv"
+    train_file = "data/spm_parallel_corpus.tsv" #"data/spm_parallel_corpus.tsv"
     checkpoint_file = "models/model_checkpoint.pt"
     
     # Training settings
