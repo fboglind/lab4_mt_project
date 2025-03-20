@@ -1,5 +1,4 @@
-"""
-seq2seq_train.py - Training script for sequence-to-sequence models
+"""seq2seq_train.py - Training script for sequence-to-sequence models
 """
 import time
 import random
@@ -7,22 +6,14 @@ import pandas as pd
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import argparse
-from seq2seq_model import create_model, tensor_from_sentence
-
-
-# Special token indices
-PAD_token = 0
-SOS_token = 1
-EOS_token = 2
-UNK_token = 3
+import configparser
+from seq2seq_model import GRUEncoder, GRUAttnDecoder, tensor_from_sentence, tensors_from_pair
 
 
 class DataLoader:
     """Class for loading and processing training data"""
     
-    def __init__(self, data_path, batch_size, src_lang_col, tgt_lang_col, 
-                special_tokens=None, max_vocab_size=30000):
+    def __init__(self, data_path, batch_size, src_lang_col, tgt_lang_col, special_tokens=None):
         """
         Initialize data loader
         
@@ -32,13 +23,11 @@ class DataLoader:
             src_lang_col: Column name for source language
             tgt_lang_col: Column name for target language
             special_tokens: Dictionary of special tokens {name: index}
-            max_vocab_size: Maximum vocabulary size for each language
         """
         self.data_path = data_path
         self.batch_size = batch_size
         self.src_lang_col = src_lang_col
         self.tgt_lang_col = tgt_lang_col
-        self.max_vocab_size = max_vocab_size
         
         # Special tokens
         self.special_tokens = special_tokens or {
@@ -66,8 +55,13 @@ class DataLoader:
         
         # Build vocabularies
         self.build_vocabularies()
+    
     def build_vocabularies(self, max_vocab_size=30000):
-        """Build source and target vocabularies from the dataset with a maximum size limit"""
+        """Build source and target vocabularies from the dataset with a size limit
+        
+        Args:
+            max_vocab_size: Maximum vocabulary size for both source and target
+        """
         print("Building vocabularies...")
         
         # Initialize vocabularies with special tokens
@@ -85,30 +79,35 @@ class DataLoader:
             "<unk>": self.special_tokens["UNK"]
         }
         
-        # Count token frequencies
-        src_token_counts = {}
-        tgt_token_counts = {}
-        
-        # Process source language tokens
+        # Count word frequencies in source language
+        src_word_freq = {}
         for text in self.df[self.src_lang_col]:
             for word in text.split():
-                src_token_counts[word] = src_token_counts.get(word, 0) + 1
+                if word not in src_word_freq:
+                    src_word_freq[word] = 0
+                src_word_freq[word] += 1
         
-        # Process target language tokens
+        # Count word frequencies in target language
+        tgt_word_freq = {}
         for text in self.df[self.tgt_lang_col]:
             for word in text.split():
-                tgt_token_counts[word] = tgt_token_counts.get(word, 0) + 1
+                if word not in tgt_word_freq:
+                    tgt_word_freq[word] = 0
+                tgt_word_freq[word] += 1
         
-        # Sort tokens by frequency (most frequent first)
-        src_tokens = sorted(src_token_counts.items(), key=lambda x: x[1], reverse=True)
-        tgt_tokens = sorted(tgt_token_counts.items(), key=lambda x: x[1], reverse=True)
+        # Add most frequent words to source vocabulary (up to max_vocab_size)
+        special_tokens_count = len(self.src_vocab)
+        remaining_slots = max_vocab_size - special_tokens_count
         
-        # Add most frequent tokens to vocabularies (up to max_vocab_size)
-        for word, _ in src_tokens[:max_vocab_size - len(self.src_vocab)]:
+        for word, freq in sorted(src_word_freq.items(), key=lambda x: x[1], reverse=True)[:remaining_slots]:
             if word not in self.src_vocab:
                 self.src_vocab[word] = len(self.src_vocab)
         
-        for word, _ in tgt_tokens[:max_vocab_size - len(self.tgt_vocab)]:
+        # Add most frequent words to target vocabulary (up to max_vocab_size)
+        special_tokens_count = len(self.tgt_vocab)
+        remaining_slots = max_vocab_size - special_tokens_count
+        
+        for word, freq in sorted(tgt_word_freq.items(), key=lambda x: x[1], reverse=True)[:remaining_slots]:
             if word not in self.tgt_vocab:
                 self.tgt_vocab[word] = len(self.tgt_vocab)
         
@@ -232,7 +231,10 @@ class Trainer:
         )
         
         # Initialize loss function
-        self.criterion = nn.NLLLoss(ignore_index=dataloader.special_tokens["PAD"])
+        # self.criterion = nn.NLLLoss(ignore_index=dataloader.special_tokens["PAD"])
+        # Use CrossEntropyLoss with label smoothing
+        self.criterion = nn.CrossEntropyLoss(label_smoothing=0.1, ignore_index=dataloader.special_tokens["PAD"])
+
         
         # Initialize best loss for checkpointing
         self.best_loss = float('inf')
@@ -367,31 +369,24 @@ class Trainer:
         
         # Process batches
         for src_batch, tgt_batch in self.dataloader.get_batches(max_length):
-            batch_size_current = src_batch.size(1)  # Get batch size outside try block
+            # Process batch
+            loss = self.process_batch(src_batch, tgt_batch, max_length)
             
-            try:
-                # Process batch
-                loss = self.process_batch(src_batch, tgt_batch, max_length)
-                
-                # Update model
-                if loss is not None and self.update_model(loss):
-                    total_loss += loss.item()
-                    successful_batches += 1
-                
-                # Increment batch counter
-                batch_count += 1
-                
-                # Print progress
-                if batch_count % 10 == 0:
-                    if successful_batches > 0:
-                        avg_loss = total_loss / successful_batches
-                        print(f"  Batch {batch_count} - Avg Loss: {avg_loss:.4f}")
-                    else:
-                        print(f"  Batch {batch_count} - No successful batches yet")
+            # Update model
+            if loss is not None and self.update_model(loss):
+                total_loss += loss.item()
+                successful_batches += 1
             
-            except Exception as e:
-                print(f"Error in batch {batch_count}: {str(e)}")
-                continue
+            # Increment batch counter
+            batch_count += 1
+            
+            # Print progress
+            if batch_count % 10 == 0:
+                if successful_batches > 0:
+                    avg_loss = total_loss / successful_batches
+                    print(f"  Batch {batch_count} - Avg Loss: {avg_loss:.4f}")
+                else:
+                    print(f"  Batch {batch_count} - No successful batches yet")
         
         # Calculate average loss
         epoch_loss = total_loss / successful_batches if successful_batches > 0 else float('inf')
@@ -411,9 +406,6 @@ class Trainer:
             saved: Whether the checkpoint was saved
         """
         try:
-            # Get model type from encoder
-            model_type = "lstm" if hasattr(self.encoder, "lstm") else "gru"
-            
             # Save checkpoint
             checkpoint = {
                 "epoch": epoch,
@@ -425,8 +417,7 @@ class Trainer:
                 "tgt_vocab": self.dataloader.tgt_vocab,
                 "src_index2word": self.dataloader.src_index2word,
                 "tgt_index2word": self.dataloader.tgt_index2word,
-                "special_tokens": self.dataloader.special_tokens,
-                "model_type": model_type
+                "special_tokens": self.dataloader.special_tokens
             }
             
             torch.save(checkpoint, checkpoint_path)
@@ -479,54 +470,47 @@ class Trainer:
         print("Training complete!")
         return self.best_loss
 
-
 def main():
     """Main function to run training"""
-    # Parse command-line arguments
-    parser = argparse.ArgumentParser(description="Train a sequence-to-sequence model for machine translation")
-    parser.add_argument("--train-file", default="data/spm_parallel_corpus.tsv", help="Path to training data")
-    parser.add_argument("--checkpoint", default="models/model_checkpoint.pt", help="Path to save model checkpoint")
-    parser.add_argument("--model-type", default="lstm", choices=["gru", "lstm"], help="Type of model to train")
-    parser.add_argument("--hidden-size", type=int, default=256, help="Size of hidden layers")
-    parser.add_argument("--epochs", type=int, default=15, help="Number of training epochs")
-    parser.add_argument("--lr", type=float, default=0.0005, help="Learning rate")
-    parser.add_argument("--batch-size", type=int, default=32, help="Batch size")
-    parser.add_argument("--teacher-forcing", type=float, default=0.5, help="Teacher forcing ratio")
-    parser.add_argument("--max-length", type=int, default=512, help="Maximum sequence length")
+    # Paths
+    train_file = "data/spm_parallel_corpus.tsv"
+    checkpoint_file = "models/model_checkpoint.pt"
     
-    args = parser.parse_args()
+    # Training settings
+    hidden_size = 256
+    num_epochs = 15
+    learning_rate = 0.0005
+    batch_size = 32
+    teacher_forcing_ratio = 0.5
+    max_length = 256
+    max_vocab_size = 30000  # Cap for both vocabularies
     
     # Initialize data loader
     dataloader = DataLoader(
-        data_path=args.train_file,
-        batch_size=args.batch_size,
+        data_path=train_file,
+        batch_size=batch_size,
         src_lang_col="Russian",
-        tgt_lang_col="English",
-        max_vocab_size=30000  # Set maximum vocabulary size
+        tgt_lang_col="English"
     )
     
-    # Initialize models using the factory function
-    encoder, decoder = create_model(
-        model_type=args.model_type,
-        input_size=len(dataloader.src_vocab),
-        output_size=len(dataloader.tgt_vocab),
-        hidden_size=args.hidden_size
-    )
+    # Apply vocabulary cap
+    dataloader.build_vocabularies(max_vocab_size)
+    
+    # Initialize models
+    encoder = GRUEncoder(len(dataloader.src_vocab), hidden_size)
+    decoder = GRUAttnDecoder(hidden_size, len(dataloader.tgt_vocab))
     
     # Initialize trainer
     trainer = Trainer(
         encoder=encoder,
         decoder=decoder,
         dataloader=dataloader,
-        learning_rate=args.lr,
-        teacher_forcing_ratio=args.teacher_forcing
+        learning_rate=learning_rate,
+        teacher_forcing_ratio=teacher_forcing_ratio
     )
     
-    # Log model type being used
-    print(f"Training {args.model_type.upper()} model")
-    
     # Train the model
-    trainer.train(args.epochs, args.checkpoint, args.max_length)
+    trainer.train(num_epochs, checkpoint_file, max_length)
 
 
 if __name__ == "__main__":

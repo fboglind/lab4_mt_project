@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class BaseEncoder(nn.Module):
-    """Abstract base class for encoder models"""
+    """Base class for encoder models"""
     
     def __init__(self, input_size, hidden_size, n_layers=1, dropout_p=0.1):
         super(BaseEncoder, self).__init__()
@@ -72,52 +72,6 @@ class GRUEncoder(BaseEncoder):
         """Initialize hidden state with zeros"""
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         return torch.zeros(self.n_layers, batch_size, self.hidden_size, device=device)
-
-
-class LSTMEncoder(BaseEncoder):
-    """LSTM-based encoder implementation"""
-    
-    def __init__(self, input_size, hidden_size, n_layers=1, dropout_p=0.1):
-        super(LSTMEncoder, self).__init__(input_size, hidden_size, n_layers, dropout_p)
-        
-        # LSTM layer
-        self.lstm = nn.LSTM(
-            hidden_size, hidden_size, n_layers,
-            dropout=dropout_p if n_layers > 1 else 0,
-            batch_first=False  # [seq_len, batch, hidden]
-        )
-    
-    def forward(self, input_seq, hidden):
-        """
-        Forward pass through the LSTM encoder
-        Args:
-            input_seq: Input sequence tensor [seq_len, batch_size]
-            hidden: Tuple of initial hidden state and cell state
-                   (h_0, c_0) where each has shape [n_layers, batch_size, hidden_size]
-            
-        Returns:
-            outputs: Outputs from the LSTM [seq_len, batch_size, hidden_size]
-            hidden: Tuple of final hidden state and cell state
-        """
-        # Create embeddings [seq_len, batch_size, hidden_size]
-        embedded = self.dropout(self.embedding(input_seq))
-        
-        # Pass through LSTM
-        outputs, hidden = self.lstm(embedded, hidden)
-        
-        return outputs, hidden
-    
-    def get_initial_hidden_state(self, batch_size=1):
-        """
-        Initialize hidden state and cell state with zeros
-        
-        Returns:
-            hidden: Tuple of (h_0, c_0) each with shape [n_layers, batch_size, hidden_size]
-        """
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        h_0 = torch.zeros(self.n_layers, batch_size, self.hidden_size, device=device)
-        c_0 = torch.zeros(self.n_layers, batch_size, self.hidden_size, device=device)
-        return (h_0, c_0)
 
 
 class BaseAttention(nn.Module):
@@ -271,63 +225,6 @@ class GRUAttnDecoder(BaseDecoder):
         return output, hidden
 
 
-class LSTMAttnDecoder(BaseDecoder):
-    """LSTM decoder with attention"""
-    
-    def __init__(self, hidden_size, output_size, dropout_p=0.1):
-        super(LSTMAttnDecoder, self).__init__(hidden_size, output_size, dropout_p)
-        
-        # Create attention mechanism
-        self.attention = AdditiveAttention(hidden_size)
-        
-        # Layers specific to LSTM decoder with attention
-        self.attn_combine = nn.Linear(hidden_size * 2, hidden_size)
-        self.lstm = nn.LSTM(hidden_size, hidden_size)
-    
-    def forward(self, input, encoder_outputs, hidden):
-        """
-        Forward pass through the LSTM decoder with attention
-        Args:
-            input: Input token indices [batch_size]
-            encoder_outputs: All outputs from the encoder [seq_len, batch_size, hidden_size]
-            hidden: Tuple of current hidden state and cell state
-                   (h_n, c_n) where each has shape [1, batch_size, hidden_size]
-            
-        Returns:
-            output: Output token probabilities [batch_size, output_size]
-            hidden: Updated tuple of hidden state and cell state
-        """
-        # Embedding layer
-        embedded = self.dropout(self.embedding(input))  # [batch_size, hidden_size]
-        
-        # Calculate attention weights - using only the hidden state (h_n), not the cell state (c_n)
-        attn_weights = self.attention(hidden[0], encoder_outputs)  # [batch_size, seq_len]
-        
-        # Apply attention weights to encoder outputs
-        encoder_outputs_transposed = encoder_outputs.transpose(0, 1)  # [batch_size, seq_len, hidden_size]
-        context = torch.bmm(
-            attn_weights.unsqueeze(1),  # [batch_size, 1, seq_len]
-            encoder_outputs_transposed  # [batch_size, seq_len, hidden_size]
-        )  # [batch_size, 1, hidden_size]
-        context = context.squeeze(1)  # [batch_size, hidden_size]
-        
-        # Combine embedding and context
-        rnn_input = torch.cat((embedded, context), dim=1)  # [batch_size, hidden_size*2]
-        rnn_input = self.attn_combine(rnn_input)  # [batch_size, hidden_size]
-        rnn_input = F.relu(rnn_input)
-        
-        # Reshape for LSTM input
-        rnn_input = rnn_input.unsqueeze(0)  # [1, batch_size, hidden_size]
-        
-        # LSTM forward pass
-        output, hidden = self.lstm(rnn_input, hidden)
-        
-        # Project to vocabulary size
-        output = self.softmax(self.out(output[0]))  # [batch_size, output_size]
-        
-        return output, hidden
-
-
 # Helper functions for data processing
 def tensor_from_sentence(vocab, sentence, pad_idx=0, eos_idx=2, unk_idx=3, max_length=512):
     """
@@ -380,30 +277,3 @@ def tensors_from_pair(src_vocab, tgt_vocab, pair, pad_idx=0, eos_idx=2, unk_idx=
     src_tensor = tensor_from_sentence(src_vocab, pair[0], pad_idx, eos_idx, unk_idx, max_length)
     tgt_tensor = tensor_from_sentence(tgt_vocab, pair[1], pad_idx, eos_idx, unk_idx, max_length)
     return src_tensor, tgt_tensor
-
-
-def create_model(model_type, input_size, output_size, hidden_size=256, n_layers=1, dropout_p=0.1):
-    """
-    Factory function to create encoder and decoder based on model type
-    
-    Args:
-        model_type: Type of model ("gru" or "lstm")
-        input_size: Size of input vocabulary
-        output_size: Size of output vocabulary
-        hidden_size: Size of hidden layers
-        n_layers: Number of layers in encoder/decoder
-        dropout_p: Dropout probability
-        
-    Returns:
-        encoder, decoder: Encoder and decoder models
-    """
-    if model_type.lower() == "gru":
-        encoder = GRUEncoder(input_size, hidden_size, n_layers, dropout_p)
-        decoder = GRUAttnDecoder(hidden_size, output_size, dropout_p)
-    elif model_type.lower() == "lstm":
-        encoder = LSTMEncoder(input_size, hidden_size, n_layers, dropout_p)
-        decoder = LSTMAttnDecoder(hidden_size, output_size, dropout_p)
-    else:
-        raise ValueError(f"Unknown model type: {model_type}. Use 'gru' or 'lstm'.")
-    
-    return encoder, decoder

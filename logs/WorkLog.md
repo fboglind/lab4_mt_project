@@ -44,11 +44,60 @@
 
 
 
+__________________
+
+- [x] The **cleaning step** (`clean_parallel_corpus.py`) should be explicitly mentioned **before** tokenization.
+- [ ] Training now **loads `sentence_aligned_corpus.tsv` instead of `parallel_corpus.tsv`**
+- [ ] The `DataLoader` is correctly set up for **shorter input sequences**.
+- [ ] Create reference set in notebook
+- [ ] Add a **section in the notebook** that runs: python3 scripts/evaluate_translations.py --hyp data/wmt_test_translations_with_beam.txt --ref data/test_reference_en.txt
+- [ ] Adjust params
+
+Orig:
+
+Training settings    hidden_size = 256    num_epochs = 15    learning_rate = 0.0005    batch_size = 32    teacher_forcing_ratio = 0.5    max_length = 512
+
+Current:
 
 
+\# Training settings
 
+​    hidden_size = 256
 
+​    num_epochs = 15
 
+​    learning_rate = 0.0005
+
+​    batch_size = 32
+
+​    teacher_forcing_ratio = 0.5
+
+​    max_length = 512
+
+Suggested:
+
+hidden_size = 384
+num_epochs = 20  # More epochs since we process smaller units
+learning_rate = 0.0005  # Keep stable learning rate
+batch_size = 64  # Increase batch size for efficiency
+teacher_forcing_ratio = 0.5  # Slightly reduce reliance on teacher forcing
+max_length = 256  # Shorter max length for sentences
+
+**Chosen:**
+
+​    **\# Training settings**
+
+​    **hidden_size = 256**
+
+​    **num_epochs = 15**
+
+​    **learning_rate = 0.0005**
+
+​    **batch_size = 32**
+
+​    **teacher_forcing_ratio = 0.5**
+
+​    **max_length = 256**
 
 
 
@@ -57,4 +106,13 @@
 Create VM:
 
 	* CORE Virtual Machine RTX4000
-	* 
+	* instance id: pskc8ozfgqys
+	* ssh paperspace@64.62.255.106
+
+* scp parallel_corpus.tsv paperspace@pskc8ozfgqys:/home/paperspace/lab4_mt_project/data
+
+* scp ./cleaned_parallel_corpus.tsv paperspace@64.62.255.106:/home/paperspace/lab4_mt_project/data
+
+Chats:
+
+https://chatgpt.com/c/67d6f249-12f8-800e-bf02-088aa6fc3e84
