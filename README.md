@@ -87,7 +87,7 @@ Tokenize the dataset for model training:
 
 ```bash
 ~~python3 scripts/apply_sentencepiece.py --input data/parallel_corpus.tsv --output data/spm_parallel_corpus.tsv --is_parallel~~
-python3 scripts/apply_sentencepiece.py --input data/russian_corpus.tsv --output data/spm_russian_corpus.tsv --model models/spm_ru_only.model`
+`python3 scripts/apply_sentencepiece.py --input data/parallel_corpus.tsv --output data/spm_parallel_corpus.tsv`
 ```
 
 This creates:
