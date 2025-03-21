@@ -1,7 +1,6 @@
 """
 seq2seq_train.py - Training script for sequence-to-sequence models
 """
-import csv
 import time
 import random
 import pandas as pd
@@ -365,13 +364,6 @@ class Trainer:
         total_loss = 0
         batch_count = 0
         successful_batches = 0
-
-        # Open a file to save loss values
-        loss_log_file = "models/training_loss.csv"
-
-        with open(loss_log_file, "w", newline="") as f:
-            writer = csv.writer(f)
-            writer.writerow(["Epoch", "Batch", "Loss"])  # Column headers
         
         # Process batches
         for src_batch, tgt_batch in self.dataloader.get_batches(max_length):
@@ -394,10 +386,6 @@ class Trainer:
                     if successful_batches > 0:
                         avg_loss = total_loss / successful_batches
                         print(f"  Batch {batch_count} - Avg Loss: {avg_loss:.4f}")
-                        # Save loss after each batch
-                        with open(loss_log_file, "a", newline="") as f:
-                            writer = csv.writer(f)
-                            writer.writerow([epoch, batch_count, loss.item()])
                     else:
                         print(f"  Batch {batch_count} - No successful batches yet")
             
@@ -536,6 +524,7 @@ def main():
     
     # Log model type being used
     print(f"Training {args.model_type.upper()} model")
+    
     # Train the model
     trainer.train(args.epochs, args.checkpoint, args.max_length)
 
