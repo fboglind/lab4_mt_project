@@ -22,22 +22,25 @@ for ru_file in ru_files:
     pmid = os.path.basename(ru_file).split("_")[0]  # Extract PMID
     with open(ru_file, "r", encoding="utf-8") as f:
         ru_text = f.read().strip()
-        if pmid in paired_data:
-            paired_data[pmid]["ru"] = ru_text  # Add Russian text
+        if pmid not in paired_data:
+            paired_data[pmid] = {}  # Initialize dictionary for this PMID
+        paired_data[pmid]["ru"] = ru_text  # Add Russian text
 
 # Process English files
 for en_file in en_files:
     pmid = os.path.basename(en_file).split("_")[0]  # Extract PMID
     with open(en_file, "r", encoding="utf-8") as f:
         en_text = f.read().strip()
-        paired_data[pmid] = {"en": en_text}
+        if pmid not in paired_data:
+            paired_data[pmid] = {}  # Initialize dictionary for this PMID
+        paired_data[pmid]["en"] = en_text  # Add English text
 
 # Write parallel corpus to file
 with open(output_parallel_file, "w", encoding="utf-8") as out_f:
-    out_f.write("Russian\tEnglish\n") # Header
+    out_f.write("Russian\tEnglish\n")  # Header
     for pmid, texts in paired_data.items():
-        if "en" in texts and "ru" in texts:
-            out_f.write(f"{texts['ru']}\t{texts['en']}\n")  # Switched order
+        if "en" in texts and "ru" in texts:  # Ensure both languages are present
+            out_f.write(f"{texts['ru']}\t{texts['en']}\n")
 
 print(f"Preprocessing complete. Saved {len(paired_data)} sentence pairs to {output_parallel_file}")
 

@@ -193,7 +193,7 @@ class Trainer:
         encoder, 
         decoder, 
         dataloader, 
-        learning_rate=0.001, 
+        learning_rate=0.005, 
         teacher_forcing_ratio=0.5,
         clip_value=0.5,
         device=None
