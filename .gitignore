@@ -17,6 +17,8 @@ lab4env/
 *.pt
 *.model
 *vocab
+directory_structure.txt
+
 # Ignore system-specific files
 .DS_Store
 Thumbs.db
@@ -27,10 +29,11 @@ to_server/
 abstracts/
 data/
 models/
-output/
 dataOLD/
 dataALT/
 dataALT2/
 dataALT3/
 modelsOLD/
+output/
 old_files/
+logs/
