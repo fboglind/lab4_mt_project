@@ -1,0 +1,48 @@
+.
+├── data
+│   ├── cleaned_parallel_corpus_initial.tsv
+│   ├── cleaned_parallel_corpus.tsv
+│   ├── latin_terms.tsv
+│   ├── parallel_corpus.tsv
+│   ├── russian_only.txt
+│   ├── sentence_aligned_corpus.tsv
+│   ├── shared_latin_terms.tsv
+│   ├── spm_parallel_corpus.tsv
+│   ├── test_raw_ru.txt
+│   └── user_defined_terms.tsv
+├── directory_structure.txt
+├── evaluation_results.txt
+├── head_spm_parallel_corpus.tsv
+├── lab4.ipynb
+├── models
+│   ├── spm_ru_en.model
+│   └── spm_ru_en.vocab
+├── README.md
+├── requirements_splserver.txt
+├── requirements.txt
+├── run_training.sh
+├── russian_sentences_corpus.tsv
+└── scripts
+    ├── abstract_analysis.py
+    ├── advanced_evaluation.py
+    ├── apply_sentencepiece.py
+    ├── clean_parallel_corpus.py
+    ├── clean_russian_openers.py
+    ├── evaluate_translations.py
+    ├── extract_frequent_numericals.py
+    ├── extract_numbers_and_latin.py
+    ├── extract_openers_from_english.py
+    ├── extract_references.py
+    ├── extract_russian.py
+    ├── preprocess_wmt22.py
+    ├── __pycache__
+    │   └── seq2seq_model.cpython-310.pyc
+    ├── sentencepiece_train.py
+    ├── seq2seq_model.py
+    ├── seq2seq_train.py
+    ├── seq2seq_train_with_accum.py
+    ├── split_abstracts.py
+    ├── translate_wmt_test.py
+    └── word_counter.py
+
+5 directories, 41 files
