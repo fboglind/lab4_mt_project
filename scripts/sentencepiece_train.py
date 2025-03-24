@@ -4,7 +4,8 @@ import os
 
 def load_user_defined_symbols(tsv_path, max_symbols=5000):
     with open(tsv_path, encoding="utf-8") as f:
-        return [line.strip().split("\t")[0] for line in f.readlines()[:max_symbols]]
+        return [line.strip().split("\t")[0] for line in f if line.strip()][:max_symbols]
+
 
 # Load user-defined symbols from file
 user_defined_symbols = load_user_defined_symbols("data/user_defined_terms.tsv")
