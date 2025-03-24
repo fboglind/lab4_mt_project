@@ -1,11 +1,20 @@
 import sentencepiece as spm
 import os
+
+def load_user_defined_symbols(tsv_path, max_terms=1000):
+    with open(tsv_path, encoding="utf-8") as f:
+        return [line.strip().split("\t")[0] for line in f.readlines()[:max_terms]]
+
 # Paths
-train_file = "data/russian_only.txt"#"data/sentence_aligned_corpus.tsv" #"data/parallel_corpus.tsv"
-sp_model_prefix = "spm_ru_only" # spm_ru_en
+train_file = "data/sentence_aligned_corpus.tsv"
+sp_model_prefix = "spm_ru_en_joint"
 vocab_size = 30000  # Adjust if needed
 
 output_dir = "models/"
+
+# Load user-defined symbols from file
+user_defined_symbols = load_user_defined_symbols("latin_terms.tsv")
+print(f"Loaded {len(user_defined_symbols)} user-defined symbols")
 # Train SentencePiece model
 spm.SentencePieceTrainer.train(
     input=train_file,
@@ -13,9 +22,9 @@ spm.SentencePieceTrainer.train(
     vocab_size=vocab_size,
     character_coverage=0.9995,  # Adjust for coverage of Russian/English text
     model_type="unigram",  # Options: bpe, unigram, char, word
-    #input_sentence_size=1000000,  # Use a subset of sentences if the dataset is large
     input_sentence_size=0, #Use all available data
     shuffle_input_sentence=True
+    user_defined_symbols=user_defined_symbols
 )
 
 print(f"SentencePiece model trained: {sp_model_prefix}.model")

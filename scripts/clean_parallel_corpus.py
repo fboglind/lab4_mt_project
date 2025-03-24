@@ -1,6 +1,16 @@
 """clean_parallel_corpus.py - Clean parallel corpus by removing misaligned abstracts"""
+import re
 import pandas as pd
 import argparse
+    
+
+def preprocess_text(text):
+    text = text.replace("\xad", "")  # remove soft hyphen
+    text = re.sub(r"(\d)([а-яА-Яa-zA-Z])", r"\1 \2", text)  # number + unit spacing
+    text = text.replace("–", "-").replace("—", "-")
+    text = re.sub(r"\.{2,}", ".", text) # remove multiple dots
+    text = re.sub(r"\s+", " ", text) # remove extra spaces
+    return text.strip()
 
 # Argument parser
 parser = argparse.ArgumentParser(description="Clean parallel corpus by removing misaligned abstracts")
@@ -14,6 +24,10 @@ df = pd.read_csv(args.input, sep="\t", encoding="utf-8")
 # Ensure required columns exist
 if "Russian" not in df.columns or "English" not in df.columns:
     raise ValueError("Error: 'Russian' and 'English' columns not found in the input file.")
+
+# Clean text
+df["Russian"] = df["Russian"].astype(str).apply(preprocess_text)
+df["English"] = df["English"].astype(str).apply(preprocess_text)
 
 # Compute word lengths
 df["Russian_Length"] = df["Russian"].apply(lambda x: len(x.split()))
