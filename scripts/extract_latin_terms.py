@@ -1,11 +1,21 @@
-"""extract_latin_terms.py"""
+"""extract_numbers_and_latin.py"""
 import pandas as pd
 import re
 from collections import Counter
 
+
 def extract_latin_words(text):
     # Match Latin script words (≥ 2 characters to skip things like "A", "B")
     return re.findall(r'\b[A-Za-z][A-Za-z0-9\-]{1,}\b', text)
+
+def extract_numbers(text, min_digits=2):
+    """Extract digit-only tokens of a certain minimum length"""
+    return re.findall(rf"\b\d{{{min_digits},}}\b", str(text))
+
+def filter_numbers_by_frequency(numbers, min_freq=3):
+    """Filter numbers by their frequency"""
+    counter = Counter(numbers)
+    return [num for num, freq in counter.items() if freq >= min_freq]
 
 def score_shared_terms(ru, en):
     ru_terms = set(extract_latin_words(ru))

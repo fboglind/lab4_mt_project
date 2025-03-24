@@ -1,6 +1,7 @@
 """
 seq2seq_train.py - Training script for sequence-to-sequence models
 """
+import os
 import time
 import random
 import pandas as pd
@@ -487,12 +488,13 @@ def main():
     parser.add_argument("--train-file", default="data/spm_parallel_corpus.tsv", help="Path to training data")
     parser.add_argument("--checkpoint", default="models/model_checkpoint.pt", help="Path to save model checkpoint")
     parser.add_argument("--model-type", default="lstm", choices=["gru", "lstm"], help="Type of model to train")
-    parser.add_argument("--hidden-size", type=int, default=256, help="Size of hidden layers")
-    parser.add_argument("--epochs", type=int, default=15, help="Number of training epochs")
+    parser.add_argument("--hidden-size", type=int, default=512, help="Size of hidden layers")
+    parser.add_argument("--epochs", type=int, default=20, help="Number of training epochs")
     parser.add_argument("--lr", type=float, default=0.0005, help="Learning rate")
     parser.add_argument("--batch-size", type=int, default=32, help="Batch size")
     parser.add_argument("--teacher-forcing", type=float, default=0.5, help="Teacher forcing ratio")
     parser.add_argument("--max-length", type=int, default=512, help="Maximum sequence length")
+    parser.add_argument("--resume", action="store_true", help="Resume training from checkpoint")
     
     args = parser.parse_args()
     
@@ -521,6 +523,15 @@ def main():
         learning_rate=args.lr,
         teacher_forcing_ratio=args.teacher_forcing
     )
+    # Check for existing checkpoint
+    if os.path.exists(args.checkpoint) and args.resume:
+        print(f"Resuming training from {args.checkpoint}")
+        checkpoint = torch.load(args.checkpoint, map_location=torch.device("cpu"))
+        encoder.load_state_dict(checkpoint["encoder_state_dict"])
+        decoder.load_state_dict(checkpoint["decoder_state_dict"])
+        trainer.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+        trainer.best_loss = checkpoint.get("loss", float('inf'))
+
     
     # Log model type being used
     print(f"Training {args.model_type.upper()} model")
