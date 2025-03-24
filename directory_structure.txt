@@ -11,8 +11,6 @@
 │   ├── test_raw_ru.txt
 │   └── user_defined_terms.tsv
 ├── directory_structure.txt
-├── evaluation_results.txt
-├── head_spm_parallel_corpus.tsv
 ├── lab4.ipynb
 ├── models
 │   ├── spm_ru_en.model
@@ -35,8 +33,6 @@
     ├── extract_references.py
     ├── extract_russian.py
     ├── preprocess_wmt22.py
-    ├── __pycache__
-    │   └── seq2seq_model.cpython-310.pyc
     ├── sentencepiece_train.py
     ├── seq2seq_model.py
     ├── seq2seq_train.py

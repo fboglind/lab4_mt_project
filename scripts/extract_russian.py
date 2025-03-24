@@ -1,10 +1,24 @@
-"""extract_russian.py"""
-import pandas as pd
-import argparse
+"""extract_russian.py - Extract Russian text for SentencePiece training"""
 
-parser = argparse.ArgumentParser(description="Extract Russian text for SentencePiece training.")
-parser.add_argument("--input", required=True, help="Input parallel corpus (TSV format)")
-parser.add_argument("--output", required=True, help="Output file with only Russian sentences")
+import argparse
+import pandas as pd
+
+parser = argparse.ArgumentParser(
+    description="Extract Russian text \
+                                 for SentencePiece training."
+)
+parser.add_argument(
+    "--input",
+    required=True,
+    help="Input parallel \
+                    corpus (TSV format)",
+)
+parser.add_argument(
+    "--output",
+    required=True,
+    help="Output file\
+                     with only Russian sentences",
+)
 args = parser.parse_args()
 
 # Load parallel corpus

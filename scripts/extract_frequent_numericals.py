@@ -1,13 +1,18 @@
 """extract_frequent_numericals.py - Extract frequent numericals from a parallel corpus"""
-import pandas as pd
+
 import re
 from collections import Counter
+import pandas as pd
+
 
 def extract_numbers(text, min_digits=2):
     """Extract digit-only tokens of a certain minimum length"""
     return re.findall(rf"\b\d{{{min_digits},}}\b", str(text))
 
+
 def main(input_path, output_path="frequent_numericals.txt", min_digits=2, min_freq=3):
+    """Extract frequent numericals from a parallel corpus"""
+    # Load the parallel corpus
     df = pd.read_csv(input_path, sep="\t", encoding="utf-8")
 
     # Extract numericals from the Russian column
@@ -27,10 +32,11 @@ def main(input_path, output_path="frequent_numericals.txt", min_digits=2, min_fr
         for number, count in filtered:
             f.write(f"{number}\n")
 
-    print(f"✅ Saved {len(filtered)} frequent numericals to: {output_path}")
-    print("📌 Examples:")
+    print(f"Saved {len(filtered)} frequent numericals to: {output_path}")
+    print("Examples:")
     for number, count in filtered[:10]:
         print(f"{number}\t{count}")
+
 
 if __name__ == "__main__":
     # Customize thresholds here
@@ -38,5 +44,5 @@ if __name__ == "__main__":
         input_path="data/parallel_corpus.tsv",
         output_path="user_defined_numericals.txt",
         min_digits=2,
-        min_freq=3
+        min_freq=3,
     )

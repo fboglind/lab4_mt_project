@@ -34,6 +34,37 @@ We use **SentencePiece for tokenization**, a **GRU-based seq2seq model with atte
 ## 📂 Directory Structure (intended)
 
 ```
+.
+├── abstracts                       # Folder with medical abstracts
+├── data                            # Folder for dataset & processed files
+├── lab4.ipynb                      # Jupyter notebook. Use this to run everything
+├── models                          # Trained models are saved here
+├── README.md                       # This file
+├── requirements.txt                # Use this to create environment for project
+├── run_training.sh                 # To train on server
+└── scripts                         # Folder containing all scripts
+    ├── abstract_analysis.py        # Basic analysis of files in /abstracts directory
+    ├── advanced_evaluation.py
+    ├── apply_sentencepiece.py      # Tokenize dataset using SentencePiece
+    ├── clean_parallel_corpus.py    # Cleaning by removing misaligned abstracts
+    ├── clean_russian_openers.py    # Removes openers and headers in ru text
+    ├── evaluate_translations.py    # An evaluation script
+    ├── extract_frequent_numericals.py    # Extracts numericals
+    ├── extract_numbers_and_latin.py      # Extract numericals and latin chars
+    ├── extract_references.py
+    ├── extract_russian.py
+    ├── preprocess_wmt22.py         # Data extraction script
+    ├── sentencepiece_train.py      # Train SentencePiece tokenizer
+    ├── seq2seq_model.py            # PyTorch seq2seq model
+    ├── seq2seq_train.py            # Training script
+    ├── seq2seq_train_with_accum.py
+    ├── split_abstracts.py
+    ├── translate_wmt_test.py       # Inference script (translation)
+    └── word_counter.py
+
+
+
+
 ├── data/                          # Folder for dataset & processed files
 │   ├── parallel_corpus.tsv        # Original parallel dataset
 │   ├── spm_parallel_corpus.tsv    # Tokenized dataset using SentencePiece

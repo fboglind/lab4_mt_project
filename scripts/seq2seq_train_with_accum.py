@@ -1,11 +1,11 @@
 """seq2seq_train.py - Training script for sequence-to-sequence models
 """
+import os
 import time
 import random
 import pandas as pd
 import torch
-import torch.nn as nn
-import torch.optim as optim
+from torch import nn, optim
 import argparse
 from seq2seq_model import create_model, tensor_from_sentence
 
@@ -369,7 +369,7 @@ class Trainer:
         successful_batches = 0
         
         # Process batches
-                step = 0
+        step = 0
         self.optimizer.zero_grad()
         for batch_idx, (src_batch, tgt_batch) in enumerate(self.dataloader.get_batches(max_length)):
             step += 1
@@ -448,7 +448,8 @@ class Trainer:
                 "src_index2word": self.dataloader.src_index2word,
                 "tgt_index2word": self.dataloader.tgt_index2word,
                 "special_tokens": self.dataloader.special_tokens,
-                "model_type": model_type
+                "model_type": model_type,
+                "hidden_size": self.encoder.hidden_size,
             }
             
             torch.save(checkpoint, checkpoint_path)
