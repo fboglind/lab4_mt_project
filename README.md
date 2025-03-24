@@ -1,8 +1,7 @@
 # Russian-to-English Machine Translation with PyTorch
 
 This project implements a **Neural Machine Translation (NMT)** system for the Russian → English biomedical domain, developed using **PyTorch**. It uses data from the WMT24 Biomedical Translation Shared Task and translates scientific abstracts from Medline.
-
-The system is based on a **sequence-to-sequence (seq2seq)** GRU *or* LSTM architecture with attention, and uses **SentencePiece** for subword tokenization. It supports training on sentence-aligned biomedical data, inference on raw abstracts, and evaluation with BLEU and chrF,
+The system is based on a **sequence-to-sequence (seq2seq)** GRU or LSTM architecture with attention, and uses **SentencePiece** for subword tokenization. It supports training on sentence-aligned biomedical data, inference on raw abstracts, and evaluation with BLEU and chrF,
 ---
 
 ## Project Overview [To be updated] - lab4.ipynb is the most up-to-date version.
@@ -169,11 +168,7 @@ Coming soon: **BLEU, chrF, COMET** evaluation.
 ---
 
 ## To-Do
-
-✅ **Complete training pipeline**  
-✅ **Switch to SentencePiece**  
-✅ **Fix detokenization issues**  
-      **Add evaluation metrics**  
+..almost done
 
 ---
 
