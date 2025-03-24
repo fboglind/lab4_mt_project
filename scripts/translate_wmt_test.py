@@ -1,11 +1,14 @@
-"""translate_wmt_test.py - Script for translating test data using trained model
+"""translate_wmt_test.py 
+Inference script for translating Russian biomedical text into English using a 
+trained seq2seq model. Supports greedy decoding and beam search.
 """
+
 import os
 import argparse
 import torch
 import sentencepiece as spm
 from tqdm import tqdm
-from seq2seq_model import GRUEncoder, GRUAttnDecoder, tensor_from_sentence
+from seq2seq_model import GRUEncoder, GRUAttnDecoder,LSTMEncoder, LSTMAttnDecoder, tensor_from_sentence
 
 
 class Translator:
@@ -23,6 +26,7 @@ class Translator:
         self.model_path = model_path
         self.sp_model_path = sp_model_path
         self.max_length = max_length
+        
 
         # Determine device
         self.device = device or torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -56,7 +60,7 @@ class Translator:
                 self.model_path,
                 map_location=self.device
             )
-
+            
             # Extract model parameters and vocabularies
             self.src_vocab = checkpoint.get("src_vocab") or checkpoint.get("src_vocab")
             self.tgt_vocab = checkpoint.get("tgt_vocab") or checkpoint.get("tgt_vocab")
@@ -70,12 +74,17 @@ class Translator:
                 "UNK": 3
             }
 
-            # Get hidden size
+            # Initialize models based on model type
+            model_type = checkpoint.get("model_type", "gru")  # Default to GRU if missing
             hidden_size = checkpoint.get("hidden_size", 256)
 
-            # Initialize models
-            self.encoder = GRUEncoder(len(self.src_vocab), hidden_size).to(self.device)
-            self.decoder = GRUAttnDecoder(hidden_size, len(self.tgt_vocab)).to(self.device)
+            if model_type == "lstm":
+                self.encoder = LSTMEncoder(len(self.src_vocab), hidden_size).to(self.device)
+                self.decoder = LSTMAttnDecoder(hidden_size, len(self.tgt_vocab)).to(self.device)
+            else:
+                self.encoder = GRUEncoder(len(self.src_vocab), hidden_size).to(self.device)
+                self.decoder = GRUAttnDecoder(hidden_size, len(self.tgt_vocab)).to(self.device)
+
 
             # Load state dictionaries
             encoder_state_dict = checkpoint.get("encoder_state_dict") or checkpoint.get("enc_state")
@@ -355,7 +364,7 @@ def main():
     """Main function to run translation"""
 
     parser = argparse.ArgumentParser(description="Translate test data using trained model")
-    parser.add_argument("--input_test_file", type=str, default="data/test_preprocessed_ru.txt", help="Path to input file")
+    parser.add_argument("--input_test_file", type=str, default="data/preprocessed_test_set.tsv", help="Path to input file")
     parser.add_argument("--output_file", type=str, default="data/test_hypothesis_en.txt", help="Path to output file")
     parser.add_argument("--model_path", type=str, default="models/model_checkpoint.pt", help="Path to model checkpoint")
     parser.add_argument("--spm_path", type=str, default="models/spm_ru_en.model", help="Path to SentencePiece model")

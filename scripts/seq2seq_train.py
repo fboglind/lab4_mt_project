@@ -1,5 +1,5 @@
-"""
-seq2seq_train.py - Training script for sequence-to-sequence models
+"""Training script for a sequence-to-sequence (seq2seq) machine translation model 
+with attention. Supports GRU or LSTM, gradient accumulation, and teacher forcing.
 """
 
 import os
@@ -71,11 +71,7 @@ class DataLoader:
         self.build_vocabularies()
 
     def build_vocabularies(self, max_vocab_size=30000):
-        """Build source and target vocabularies from the dataset with a maximum size limit
-            
-            Args:
-                max_vocab_size: Maximum vocabulary size for each language
-        """
+        """Build source and target vocabularies from the dataset with a maximum size limit"""
         print("Building vocabularies...")
 
         # Initialize vocabularies with special tokens
@@ -129,7 +125,8 @@ class DataLoader:
         )
 
     def get_batches(self, max_length=512):
-        """Generate batches of data for training
+        """
+        Generate batches of data for training
 
         Args:
             max_length: Maximum sequence length
@@ -210,6 +207,7 @@ class Trainer:
         teacher_forcing_ratio=0.5,
         clip_value=0.5,
         device=None,
+        accum_steps=1,
     ):
         """
         Initialize trainer
@@ -231,9 +229,7 @@ class Trainer:
         self.clip_value = clip_value
 
         # Determine device
-        self.device = device or torch.device(
-            "cuda" if torch.cuda.is_available() else "cpu"
-        )
+        self.device = device
         print(f"Training on: {self.device}")
 
         # Move models to device
@@ -250,9 +246,11 @@ class Trainer:
 
         # Initialize best loss for checkpointing
         self.best_loss = float("inf")
+        self.accum_steps = accum_steps
 
     def process_batch(self, src_batch, tgt_batch, max_length=512):
-        """Process a single batch
+        """
+        Process a single batch
 
         Args:
             src_batch: Source batch tensor [seq_len, batch_size]
@@ -328,7 +326,8 @@ class Trainer:
             return None
 
     def update_model(self, loss):
-        """Update model parameters
+        """
+        Update model parameters
 
         Args:
             loss: Loss tensor
@@ -366,7 +365,8 @@ class Trainer:
             return False
 
     def train_epoch(self, max_length=512):
-        """Train for one epoch
+        """
+        Train for one epoch
 
         Args:
             max_length: Maximum sequence length
@@ -384,7 +384,36 @@ class Trainer:
         successful_batches = 0
 
         # Process batches
-        for src_batch, tgt_batch in self.dataloader.get_batches(max_length):
+        step = 0
+        self.optimizer.zero_grad()
+        for batch_idx, (src_batch, tgt_batch) in enumerate(
+            self.dataloader.get_batches(max_length)
+        ):
+            step += 1
+            loss = self.process_batch(src_batch, tgt_batch, max_length)
+            if loss is not None:
+                (loss / self.accum_steps).backward()
+                if (
+                    step % self.accum_steps == 0
+                    or batch_idx == len(self.dataloader) - 1
+                ):
+                    torch.nn.utils.clip_grad_norm_(
+                        list(self.encoder.parameters())
+                        + list(self.decoder.parameters()),
+                        self.clip_value,
+                    )
+                    self.optimizer.step()
+                    self.optimizer.zero_grad()
+                    total_loss += loss.item()
+                    successful_batches += 1
+            batch_count += 1
+            if batch_count % 10 == 0:
+                if successful_batches > 0:
+                    avg_loss = total_loss / successful_batches
+                    print(f"  Batch {batch_count} - Avg Loss: {avg_loss:.4f}")
+                else:
+                    print(f"  Batch {batch_count} - No successful batches yet")
+            batch_size_current = src_batch.size(1)  # Get batch size outside try block
 
             try:
                 # Process batch
@@ -418,7 +447,8 @@ class Trainer:
         return epoch_loss
 
     def save_checkpoint(self, epoch, loss, checkpoint_path):
-        """Save model checkpoint
+        """
+        Save model checkpoint
 
         Args:
             epoch: Current epoch number
@@ -457,7 +487,8 @@ class Trainer:
             return False
 
     def train(self, num_epochs, checkpoint_path, max_length=512):
-        """rain the model for multiple epochs
+        """
+        Train the model for multiple epochs
 
         Args:
             num_epochs: Number of epochs to train
@@ -526,15 +557,18 @@ def main():
         "--hidden-size", type=int, default=256, help="Size of hidden layers"
     )
     parser.add_argument(
-        "--epochs", type=int, default=20, help="Number of training epochs"
+        "--epochs", type=int, default=15, help="Number of training epochs"
     )
     parser.add_argument("--lr", type=float, default=0.0005, help="Learning rate")
-    parser.add_argument("--batch-size", type=int, default=32, help="Batch size")
+    parser.add_argument("--batch-size", type=int, default=8, help="Batch size")
     parser.add_argument(
         "--teacher-forcing", type=float, default=0.5, help="Teacher forcing ratio"
     )
     parser.add_argument(
         "--max-length", type=int, default=512, help="Maximum sequence length"
+    )
+    parser.add_argument(
+        "--accum-steps", type=int, default=1, help="Steps to accumulate gradients"
     )
     parser.add_argument(
         "--resume", action="store_true", help="Resume training from checkpoint"
@@ -548,7 +582,7 @@ def main():
         batch_size=args.batch_size,
         src_lang_col="Russian",
         tgt_lang_col="English",
-        max_vocab_size=34000,  # Set max vocab size - similar to SentencePiece value
+        max_vocab_size=30000,  # Set maximum vocabulary size
     )
 
     # Initialize models using the factory function
@@ -562,11 +596,13 @@ def main():
     # Initialize trainer
     trainer = Trainer(
         encoder=encoder,
+        accum_steps=args.accum_steps,
         decoder=decoder,
         dataloader=dataloader,
         learning_rate=args.lr,
         teacher_forcing_ratio=args.teacher_forcing,
     )
+
     # Check for existing checkpoint
     if os.path.exists(args.checkpoint) and args.resume:
         print(f"Resuming training from {args.checkpoint}")

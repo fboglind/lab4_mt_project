@@ -1,5 +1,7 @@
-"""evaluate_translations.py - Script for evaluating machine translation quality using sacreBLEU"""
-
+"""evaluate_translations.py
+Evaluation script for comparing model translations against reference translations 
+using sacreBLEU and chrF.
+""" 
 import argparse
 import logging
 import os

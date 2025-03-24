@@ -1,0 +1,15 @@
+# Machine Translation Evaluation Results
+
+Hypothesis file: data/test_hypothesis_en.txt
+Reference file: data/test_reference_en.txt
+
+## BLEU Score
+
+BLEU = 0.28
+BLEU = 0.28 10.6/1.5/0.1/0.0 (BP = 0.885 ratio = 0.891 hyp_len = 9677 ref_len = 10860)
+
+## chrF Score
+
+chrF = 13.6618
+chrF2 = 13.66
+

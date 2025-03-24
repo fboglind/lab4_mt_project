@@ -37,7 +37,7 @@ parser.add_argument(
 )
 parser.add_argument("--output", required=True, help="Output file (tokenized text)")
 parser.add_argument(
-    "--model", default="models/spm_ru_only.model", help="SentencePiece model file"
+    "--model", default="models/spm_ru_en.model", help="SentencePiece model file"
 )
 parser.add_argument(
     "--to_parallel",

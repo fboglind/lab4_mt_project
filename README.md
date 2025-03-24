@@ -35,54 +35,33 @@ We use **SentencePiece for tokenization**, a **GRU-based seq2seq model with atte
 
 ```
 .
-├── abstracts                       # Folder with medical abstracts
-├── data                            # Folder for dataset & processed files
-├── lab4.ipynb                      # Jupyter notebook. Use this to run everything
-├── models                          # Trained models are saved here
-├── README.md                       # This file
-├── requirements.txt                # Use this to create environment for project
-├── run_training.sh                 # To train on server
-└── scripts                         # Folder containing all scripts
-    ├── abstract_analysis.py        # Basic analysis of files in /abstracts directory
-    ├── advanced_evaluation.py
-    ├── apply_sentencepiece.py      # Tokenize dataset using SentencePiece
-    ├── clean_parallel_corpus.py    # Cleaning by removing misaligned abstracts
-    ├── clean_russian_openers.py    # Removes openers and headers in ru text
-    ├── evaluate_translations.py    # An evaluation script
-    ├── extract_frequent_numericals.py    # Extracts numericals
-    ├── extract_numbers_and_latin.py      # Extract numericals and latin chars
-    ├── extract_references.py
-    ├── extract_russian.py
-    ├── preprocess_wmt22.py         # Data extraction script
-    ├── sentencepiece_train.py      # Train SentencePiece tokenizer
-    ├── seq2seq_model.py            # PyTorch seq2seq model
-    ├── seq2seq_train.py            # Training script
-    ├── seq2seq_train_with_accum.py
-    ├── split_abstracts.py
-    ├── translate_wmt_test.py       # Inference script (translation)
-    └── word_counter.py
+├── abstracts     [EMPTY]                 # Folder with medical abstracts                    
+├── data          [EMPTY]                 # Folder for dataset & processed files                 
+├── lab4.ipynb                            # Jupyter notebook. Use this to run everything
+├── models        [EMPTY]                 # Trained models are saved here                          
+├── README.md                             # This file
+├── requirements.txt                      # Use this to create environment for project
+├── run_training.sh                       # To train on server
+├── scripts/                               # Folder containing all scripts
+│    ├── abstract_analysis.py              # Basic analysis of files in /abstracts directory
+│    ├── advanced_evaluation.py
+│    ├── apply_sentencepiece.py            # Tokenize dataset using SentencePiece
+│    ├── clean_parallel_corpus.py          # Cleaning by removing misaligned abstracts
+│    ├── clean_russian_openers.py          # Removes openers and headers in ru text
+│    ├── evaluate_translations.py          # An evaluation script
+│    ├── extract_frequent_numericals.py    # Extracts numericals
+│    ├── extract_numbers_and_latin.py      # Extract numericals and latin chars
+│    ├── extract_references.py             # Extracts reference translations for eval
+│    ├── extract_russian.py                # Extracts ru-only corpus
+│    ├── preprocess_wmt22.py               # Data extraction script
+│    ├── sentencepiece_train.py            # Train SentencePiece tokenizer
+│    ├── seq2seq_model.py                  # PyTorch seq2seq model
+│    ├── seq2seq_train.py                  # Training script
+│    ├── seq2seq_train_with_accum.py
+│    ├── split_abstracts.py                # Splits abstract into sentences
+│    ├── translate_wmt_test.py             # Inference script (translation)
+│    └── word_counter.py                   # Counts words
 
-
-
-
-├── data/                          # Folder for dataset & processed files
-│   ├── parallel_corpus.tsv        # Original parallel dataset
-│   ├── spm_parallel_corpus.tsv    # Tokenized dataset using SentencePiece
-│   ├── test_preprocessed_ru.txt   # Tokenized test data (Russian)
-├── models/
-│   ├── spm_ru_en.model            # SentencePiece model
-│   ├── model_checkpoint.pt        # Trained model checkpoint
-├── old_files/
-|   ├── [...]                      # Old files to be deleted   
-├── scripts/
-│   ├── apply_sentencepiece.py     # Tokenize dataset using SentencePiece
-│   ├── preprocess_wmt22.py        # Data extraction script
-│   ├── sentencepiece_train.py     # Train SentencePiece tokenizer
-│   ├── seq2seq_model.py           # PyTorch seq2seq model
-│   ├── seq2seq_train.py           # Training script
-│   ├── translate_wmt_test.py      # Inference script (translation)
-├── README.md                      # This file
-├── requirements.txt               # Lists dependencies 
 ```
 
 ---
@@ -101,7 +80,7 @@ We use **SentencePiece for tokenization**, a **GRU-based seq2seq model with atte
 
 ## 2. Preprocessing
 
-### 1️⃣ Train SentencePiece Tokenizer
+### 1️⃣  Train SentencePiece Tokenizer
 
 Run the following script to **train SentencePiece on the dataset**:
 

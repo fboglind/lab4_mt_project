@@ -1,7 +1,12 @@
-"""seq2seq_model.py - Implementation of sequence-to-sequence models"""
+"""seq2seq_model.py
+Model definitions for the sequence-to-sequence architecture with attention.
+Supports both GRU and LSTM encoders/decoders, attention mechanisms,
+and implements tensor conversion for training and inference.
+"""
+
 
 import torch
-import torch.nn as nn
+from torch import nn
 import torch.nn.functional as F
 
 

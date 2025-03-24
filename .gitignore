@@ -16,7 +16,8 @@ lab4env/
 *.out
 *.pt
 *.model
-*vocab
+*.zip
+*.vocab
 directory_structure.txt
 
 # Ignore system-specific files

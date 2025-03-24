@@ -1,25 +1,10 @@
 .
 ├── data
-│   ├── cleaned_parallel_corpus_initial.tsv
-│   ├── cleaned_parallel_corpus.tsv
-│   ├── latin_terms.tsv
-│   ├── parallel_corpus.tsv
-│   ├── russian_only.txt
-│   ├── sentence_aligned_corpus.tsv
-│   ├── shared_latin_terms.tsv
-│   ├── spm_parallel_corpus.tsv
-│   ├── test_raw_ru.txt
-│   └── user_defined_terms.tsv
-├── directory_structure.txt
 ├── lab4.ipynb
 ├── models
-│   ├── spm_ru_en.model
-│   └── spm_ru_en.vocab
 ├── README.md
-├── requirements_splserver.txt
 ├── requirements.txt
 ├── run_training.sh
-├── russian_sentences_corpus.tsv
 └── scripts
     ├── abstract_analysis.py
     ├── advanced_evaluation.py
