@@ -30,17 +30,17 @@ The system uses a **sequence-to-sequence (seq2seq) architecture with attention**
 
 ---
 
-## 📂 Directory Structure (approx.)
+## 📂 Directory Structure
 
 ```
 .
-├── abstracts     [EMPTY]                 # Folder with medical abstracts                    
-├── data          [EMPTY]                 # Folder for dataset & processed files                 
-├── lab4.ipynb                            # Jupyter notebook. Use this to run everything
-├── models        [EMPTY]                 # Trained models are saved here                          
-├── README.md                             # This file
-├── requirements.txt                      # Use this to create environment for project
-├── run_training.sh                       # To train on server
+├── abstracts     [is created]             # Folder with medical abstracts                    
+├── data          [is created]             # Folder for dataset & processed files                 
+├── lab4.ipynb                             # Jupyter notebook. Use this to run everything
+├── models        [is created]             # Trained models are saved here                          
+├── README.md                              # This file
+├── requirements.txt                       # Use this to create environment for project
+├── run_training.sh                        # To train on server
 ├── scripts/                               # Folder containing all scripts
 │    ├── abstract_analysis.py              # Basic analysis of files in /abstracts directory
 │    ├── advanced_evaluation.py
@@ -63,7 +63,6 @@ The system uses a **sequence-to-sequence (seq2seq) architecture with attention**
 
 ```
 
-
 ## 1. Preprocessing Pipeline
 
 ### 1.1 Extract Training & Test Data
@@ -71,7 +70,6 @@ The system uses a **sequence-to-sequence (seq2seq) architecture with attention**
 ```bash
 python3 scripts/preprocess_wmt22.py
 ```
----
 ### 1.2 Sentence Splitting
 
 python3 scripts/split_abstracts.py \
@@ -79,7 +77,6 @@ python3 scripts/split_abstracts.py \
   --output data/test_parallel_sentences.tsv
 
 cut -f1 data/test_parallel_sentences.tsv > data/test_raw_ru_sentences.txt
----
 
 ### 1.3 Train SentencePiece Tokenizer
 ```bash
@@ -88,7 +85,7 @@ python3 scripts/sentencepiece_train.py
 This generates:
 - **`spm_ru_en.model`** (SentencePiece model).
 - **`spm_ru_en.vocab`** (Vocabulary file).
----
+
 ### 1.4 Apply SentencePiece
 ```bash
 python3 scripts/apply_sentencepiece.py \
@@ -99,6 +96,7 @@ python3 scripts/apply_sentencepiece.py \
   --input data/test_raw_ru_sentences.txt \
   --output data/test_preprocessed_ru_sentences.txt
 ```
+---
 ## 2. Train the Model
 ```
 python3 scripts/seq2seq_train.py \
@@ -109,7 +107,7 @@ python3 scripts/seq2seq_train.py \
   --checkpoint models/model_checkpoint.pt
 ```
 Model checkpoint is saved to models/model_checkpoint.pt
-
+---
 ## 3. Translate the Test Set
 ```bash
 python3 scripts/translate_wmt_test.py
@@ -119,7 +117,7 @@ This uses:
     data/test_preprocessed_ru_sentences.txt
 
     Outputs: data/wmt_test_translations.txt
-
+---
 ## 4. Extract Reference Translations
 ```bash
 python3 scripts/extract_references.py \
@@ -129,7 +127,7 @@ python3 scripts/extract_references.py \
   --src-col Russian \
   --tgt-col English
 ```
-
+---
 ## 5. Evaluate Translations
 ```bash
 python3 scripts/evaluate_translations.py \
