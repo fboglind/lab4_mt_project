@@ -1,31 +1,32 @@
-# Russian-to-English Machine Translation with PyTorch
+# 🧬 Russian-to-English Biomedical Machine Translation with PyTorch
 
-This project implements a **Neural Machine Translation (NMT)** system for the Russian → English biomedical domain, developed using **PyTorch**. It uses data from the WMT24 Biomedical Translation Shared Task and translates scientific abstracts from Medline.
-The system is based on a **sequence-to-sequence (seq2seq)** GRU or LSTM architecture with attention, and uses **SentencePiece** for subword tokenization. It supports training on sentence-aligned biomedical data, inference on raw abstracts, and evaluation with BLEU and chrF,
+This project implements a **Neural Machine Translation (NMT)** system for the **Russian → English** biomedical domain, developed using **PyTorch**. It is designed for the [WMT24 Biomedical Shared Task](https://www2.statmt.org/wmt24/biomedical-translation-task.html), translating scientific abstracts from Medline.
+
+The system uses a **sequence-to-sequence (seq2seq) architecture with attention**, supports both **GRU and LSTM**, and applies **SentencePiece** subword tokenization. Evaluation is done with **BLEU**, **chrF**.
+
 ---
 
-## Project Overview [To be updated] - lab4.ipynb is the most up-to-date version.
+## Pipeline Overview
 
-### 1️⃣ Data Collection
-- We use **WMT22 Biomedical Training Data** for **Russian-English** translation.
-- The dataset consists of **parallel medical abstracts**.
+### Data
+- WMT22 Biomedical Russian-English abstracts (parallel data)
 
-### 2️⃣ Preprocessing
-- **Text cleaning & normalization**.
-- **Tokenization** using **SentencePiece**
-- **Conversion to tensors** for PyTorch training.
+### Preprocessing
+- Text cleaning
+- Sentence splitting
+- SentencePiece tokenization
 
-### 3️⃣ Model Training
-- **Encoder-Decoder GRU model with attention**.
-- **Mini-batch training** with **gradient clipping**.
-- **Teacher forcing to stabilize training**.
+### Model
+- Attention-based encoder-decoder (GRU or LSTM)
+- Trained with teacher forcing and gradient accumulation
+- Built from scratch in PyTorch
 
-### 4️⃣ Inference (Translation)
-- Translate **Russian test abstracts** into **English**.
-- Use **SentencePiece for decoding**.
+### Inference
+- Translates tokenized Russian input back to natural English
 
-### 5️⃣ Evaluation (To Be Added)
-- Compute **BLEU, chrF** on test translations.
+### Evaluation
+- BLEU and chrF scores via sacreBLEU
+- COMET planned
 
 ---
 
@@ -55,130 +56,93 @@ The system is based on a **sequence-to-sequence (seq2seq)** GRU or LSTM architec
 │    ├── sentencepiece_train.py            # Train SentencePiece tokenizer
 │    ├── seq2seq_model.py                  # PyTorch seq2seq model
 │    ├── seq2seq_train.py                  # Training script
-│    ├── split_single_column.py            # Split a single-language file into sentences 
 │    ├── split_abstracts.py                # Splits abstract into sentences
+│    ├── split_single_column.py            # Split a single-language file into sentences
 │    ├── translate_wmt_test.py             # Inference script (translation)
 │    └── word_counter.py                   # Counts words
 
 ```
 
+
+## 1. Preprocessing Pipeline
+
+### 1.1 Extract Training & Test Data
+
+```bash
+python3 scripts/preprocess_wmt22.py
+```
+---
+### 1.2 Sentence Splitting
+
+python3 scripts/split_abstracts.py \
+  --input data/test_parallel.tsv \
+  --output data/test_parallel_sentences.tsv
+
+cut -f1 data/test_parallel_sentences.tsv > data/test_raw_ru_sentences.txt
 ---
 
-## 1. Data Collection
-
-1. Download the WMT22 dataset and extract parallel Russian-English abstracts.
-2. Run `preprocess_wmt22.py` to create the file `parallel_corpus.tsv` (tab-separated, Russian ↔ English).
-3. (Optional) Run analysis: `python3 scripts/abstract_analysis.py --input data/parallel_corpus.tsv`
-4. Clean the dataset: `python3 scripts/clean_parallel_corpus.py --input data/parallel_corpus.tsv --output data/cleaned_parallel_corpus.tsv`
-4. Split the paralell corpus into sentences: 
-`python3 scripts/split_abstracts.py --input data/cleaned_parallel_corpus.tsv --output data/sentence_aligned_corpus.tsv`
-5. For uni-language spm training, extract Russian sentences only: `cut -f 1 data/sentence_aligned_corpus.tsv > data/russian_sentences_corpus.tsv`
-
----
-
-## 2. Preprocessing
-
-### 1️⃣  Train SentencePiece Tokenizer
-
-Run the following script to **train SentencePiece on the dataset**:
-
+### 1.3 Train SentencePiece Tokenizer
 ```bash
 python3 scripts/sentencepiece_train.py
 ```
-
 This generates:
 - **`spm_ru_en.model`** (SentencePiece model).
 - **`spm_ru_en.vocab`** (Vocabulary file).
-
-### 2️⃣ Apply SentencePiece to Training Data
-
-Tokenize the dataset for model training:
-
-```bash
-~~python3 scripts/apply_sentencepiece.py --input data/parallel_corpus.tsv --output data/spm_parallel_corpus.tsv --is_parallel~~
-`python3 scripts/apply_sentencepiece.py --input data/parallel_corpus.tsv --output data/spm_parallel_corpus.tsv`
-```
-
-This creates:
-~~- **`spm_parallel_corpus.tsv`** (Tokenized dataset).~~
-**`spm_russian_corpus.tsv`** (Tokenized dataset)
-
-### 3️⃣ Prepare the Test Data
-
-Run the same script again:
-
-```bash
-python3 scripts/apply_sentencepiece.py --input data/test_raw_ru.txt --output data/test_preprocessed_ru.txt
-python3 scripts/apply_sentencepiece.py --input data/test_raw_ru.txt --output data/test_preprocessed_ru.txt
-
-```
-
 ---
-
-## 3. Train the Model
-
-Run the following command to train the model:
-
+### 1.4 Apply SentencePiece
 ```bash
-python3 scripts/seq2seq_train.py
+python3 scripts/apply_sentencepiece.py \
+  --input data/parallel_corpus.tsv \
+  --output data/spm_parallel_corpus.tsv
+
+python3 scripts/apply_sentencepiece.py \
+  --input data/test_raw_ru_sentences.txt \
+  --output data/test_preprocessed_ru_sentences.txt
 ```
-
-### Training Details
-- Model is trained for **15 epochs**.
-- Uses **mini-batches (batch size = 32)**.
-- Learning rate: **0.0005** (with Adam optimizer).
-- **Gradient clipping** prevents exploding gradients.
-
-After training, the model is saved as:
-
+## 2. Train the Model
 ```
-models/model_checkpoint.pt
+python3 scripts/seq2seq_train.py \
+  --train-file data/spm_parallel_corpus.tsv \
+  --batch-size 8 \
+  --accum-steps 4 \
+  --model-type lstm \
+  --checkpoint models/model_checkpoint.pt
 ```
+Model checkpoint is saved to models/model_checkpoint.pt
 
----
-
-## 4. Run Inference (Translate Russian to English)
-
-To translate Russian medical abstracts:
-
+## 3. Translate the Test Set
 ```bash
 python3 scripts/translate_wmt_test.py
 ```
+This uses:
 
-This generates:
+    data/test_preprocessed_ru_sentences.txt
 
+    Outputs: data/wmt_test_translations.txt
+
+## 4. Extract Reference Translations
+```bash
+python3 scripts/extract_references.py \
+  --parallel data/test_parallel_sentences.tsv \
+  --test data/test_raw_ru_sentences.txt \
+  --output data/test_reference_en.txt \
+  --src-col Russian \
+  --tgt-col English
 ```
-wmt_test_translations.txt  # Translated English abstracts
+
+## 5. Evaluate Translations
+```bash
+python3 scripts/evaluate_translations.py \
+  --hyp data/wmt_test_translations.txt \
+  --ref data/test_reference_en.txt \
+  --output data/eval_results.txt
 ```
+Outputs:
+
+    BLEU score
+
+    chrF score
+
+    eval_results.txt with detailed breakdown
 
 
-
-##  5. Evaluation (To Be Added)
-
-Coming soon: **BLEU, chrF, COMET** evaluation.
-
----
-
-## Notes
-
-- The system **only translates Russian → English**.
-- Uses **SentencePiece for tokenization**, avoiding Moses/BPE issues.
-- Implements **Attention-based seq2seq model** in PyTorch.
-
----
-
-## To-Do
-..almost done
-
----
-
-### Credits
-
-- WMT Biomedical Translation Task  
-- PyTorch seq2seq model adapted for **Russian-English MT**  
-
----
-
-### 🔹 Final Notes
-
-This README provides step-by-step guidance from **data collection** → **preprocessing** → **training** → **translation**. 

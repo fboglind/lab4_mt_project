@@ -1,4 +1,5 @@
-"""split single column.py"""
+"""split single column.py
+Split a single-language text file into sentences using regex, handling abbreviations."""
 import re
 import argparse
 
