@@ -364,7 +364,7 @@ def main():
     """Main function to run translation"""
 
     parser = argparse.ArgumentParser(description="Translate test data using trained model")
-    parser.add_argument("--input_test_file", type=str, default="data/preprocessed_test_set.tsv", help="Path to input file")
+    parser.add_argument("--input_test_file", type=str, default="data/test_preprocessed_ru_sentences.txt", help="Path to input file")
     parser.add_argument("--output_file", type=str, default="data/test_hypothesis_en.txt", help="Path to output file")
     parser.add_argument("--model_path", type=str, default="models/model_checkpoint.pt", help="Path to model checkpoint")
     parser.add_argument("--spm_path", type=str, default="models/spm_ru_en.model", help="Path to SentencePiece model")
