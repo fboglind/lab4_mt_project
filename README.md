@@ -55,7 +55,7 @@ The system is based on a **sequence-to-sequence (seq2seq)** GRU or LSTM architec
 │    ├── sentencepiece_train.py            # Train SentencePiece tokenizer
 │    ├── seq2seq_model.py                  # PyTorch seq2seq model
 │    ├── seq2seq_train.py                  # Training script
-│    ├── seq2seq_train_with_accum.py
+│    ├── split_single_column.py            # Split a single-language file into sentences 
 │    ├── split_abstracts.py                # Splits abstract into sentences
 │    ├── translate_wmt_test.py             # Inference script (translation)
 │    └── word_counter.py                   # Counts words
