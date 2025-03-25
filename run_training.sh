@@ -4,4 +4,7 @@
 
 # Use unbuffered output for Python (-u flag)
 # and redirect both stdout and stderr to the log file
-python3 -u scripts/seq2seq_train.py > training_output.log 2>&1
+nohup python3 -u scripts/seq2seq_train.py \
+  --batch-size 8 \
+  --accum-steps 4 \
+  > training_output.log 2>&1 &

@@ -1,4 +1,5 @@
-"""Training script for a sequence-to-sequence (seq2seq) machine translation model 
+"""seq2seq_train.py
+Training script for a sequence-to-sequence (seq2seq) machine translation model 
 with attention. Supports GRU or LSTM, gradient accumulation, and teacher forcing.
 """
 
