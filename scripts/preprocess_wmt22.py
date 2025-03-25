@@ -52,9 +52,23 @@ print(
 TEST_SIZE = 50  # Adjust this as needed
 test_ru_files = ru_files[-TEST_SIZE:]  # Assume last 'test_size' files are test data
 
-with open(OUTPUT_TEST_RAW_FILE, "w", encoding="utf-8") as test_f:
+OUTPUT_TEST_PARALLEL_FILE = "data/test_parallel.tsv"
+
+with open(OUTPUT_TEST_RAW_FILE, "w", encoding="utf-8") as test_f, \
+     open(OUTPUT_TEST_PARALLEL_FILE, "w", encoding="utf-8") as test_parallel_f:
+    
+    test_parallel_f.write("Russian\tEnglish\n")  # header
+
     for ru_file in test_ru_files:
-        with open(ru_file, "r", encoding="utf-8") as ru_f:
-            test_f.write(ru_f.read().strip() + "\n")
+        pmid = os.path.basename(ru_file).split("_")[0]
+        ru_text = paired_data.get(pmid, {}).get("ru")
+        en_text = paired_data.get(pmid, {}).get("en")
+
+        if ru_text and en_text:
+            test_f.write(ru_text.strip() + "\n")
+            test_parallel_f.write(f"{ru_text.strip()}\t{en_text.strip()}\n")
+
 
 print(f"Raw test Russian abstracts saved to {OUTPUT_TEST_RAW_FILE}")
+print(f"Parallel test data saved to {OUTPUT_TEST_PARALLEL_FILE}")
+```
