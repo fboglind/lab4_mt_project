@@ -1,4 +1,4 @@
-# 🧬 Russian-to-English Biomedical Machine Translation with PyTorch
+#  Russian-to-English Biomedical Machine Translation with PyTorch
 
 This project implements a **Neural Machine Translation (NMT)** system for the **Russian → English** biomedical domain, developed using **PyTorch**. It is designed for the [WMT24 Biomedical Shared Task](https://www2.statmt.org/wmt24/biomedical-translation-task.html), translating scientific abstracts from Medline.
 
@@ -143,6 +143,6 @@ Outputs:
 
     chrF score
 
-    eval_results.txt with detailed breakdown
+    eval_results.txt with  breakdown
 
 
