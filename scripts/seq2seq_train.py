@@ -1,5 +1,4 @@
-"""seq2seq_train.py
-Training script for a sequence-to-sequence (seq2seq) machine translation model 
+"""Training script for a sequence-to-sequence (seq2seq) machine translation model 
 with attention. Supports GRU or LSTM, gradient accumulation, and teacher forcing.
 """
 
@@ -61,6 +60,11 @@ class DataLoader:
         # Data
         self.df = None
         self.load_data()
+
+    def __len__(self):
+        """Return number of batches per epoch"""
+        return (len(self.df) + self.batch_size - 1) // self.batch_size
+
 
     def load_data(self):
         """Load and preprocess the dataset"""
@@ -602,7 +606,7 @@ def main():
         dataloader=dataloader,
         learning_rate=args.lr,
         teacher_forcing_ratio=args.teacher_forcing,
-        device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),  # 🔧 ADD THIS LINE
+        device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
     )
 
     # Check for existing checkpoint
