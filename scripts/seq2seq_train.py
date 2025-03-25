@@ -602,6 +602,7 @@ def main():
         dataloader=dataloader,
         learning_rate=args.lr,
         teacher_forcing_ratio=args.teacher_forcing,
+        device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),  # 🔧 ADD THIS LINE
     )
 
     # Check for existing checkpoint
