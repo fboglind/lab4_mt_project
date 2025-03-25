@@ -71,4 +71,3 @@ with open(OUTPUT_TEST_RAW_FILE, "w", encoding="utf-8") as test_f, \
 
 print(f"Raw test Russian abstracts saved to {OUTPUT_TEST_RAW_FILE}")
 print(f"Parallel test data saved to {OUTPUT_TEST_PARALLEL_FILE}")
-```
