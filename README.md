@@ -60,6 +60,7 @@ The system uses a **sequence-to-sequence (seq2seq) architecture with attention**
 │    ├── split_single_column.py            # Split a single-language file into sentences
 │    ├── translate_wmt_test.py             # Inference script (translation)
 │    └── word_counter.py                   # Counts words
+---
 
 ```
 
@@ -135,6 +136,7 @@ python3 scripts/evaluate_translations.py \
   --ref data/test_reference_en.txt \
   --output data/eval_results.txt
 ```
+
 Outputs:
 
     BLEU score
