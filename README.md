@@ -17,9 +17,9 @@ The system uses a **sequence-to-sequence (seq2seq) architecture with attention**
 - SentencePiece tokenization
 
 ### Model
-- Attention-based encoder-decoder (GRU or LSTM)
+
+- Attention-based encoder-decoder (GRU or LSTM) built using PyTorch.
 - Trained with teacher forcing and gradient accumulation
-- Built from scratch in PyTorch
 
 ### Inference
 - Translates tokenized Russian input back to natural English
