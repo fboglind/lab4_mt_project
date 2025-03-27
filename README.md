@@ -143,6 +143,5 @@ Outputs:
 
     chrF score
 
-    eval_results.txt with  breakdown
-
-
+Saved in:
+    eval_results.txt

@@ -225,6 +225,7 @@ class Trainer:
             teacher_forcing_ratio: Probability of using teacher forcing
             clip_value: Gradient clipping value
             device: Device to train on (cuda/cpu)
+            accum_steps: Steps to accumulate gradients
         """
         self.encoder = encoder
         self.decoder = decoder
@@ -538,6 +539,7 @@ class Trainer:
 
 def main():
     """Main function to run training"""
+
     # Parse command-line arguments
     parser = argparse.ArgumentParser(
         description="Train a sequence-to-sequence model for machine translation"
