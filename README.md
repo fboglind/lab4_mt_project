@@ -36,7 +36,7 @@ The system uses a **sequence-to-sequence (seq2seq) architecture with attention**
 .
 ├── abstracts     [is created]             # Folder with medical abstracts                    
 ├── data          [is created]             # Folder for dataset & processed files                 
-├── lab4.ipynb                             # Jupyter notebook. Use this to run everything
+├── lab4.ipynb                             # **Jupyter notebook. Use this to run everything**
 ├── models        [is created]             # Trained models are saved here                          
 ├── README.md                              # This file
 ├── requirements.txt                       # Use this to create environment for project
