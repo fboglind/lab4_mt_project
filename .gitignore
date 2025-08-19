@@ -21,6 +21,11 @@ lab4env/
 directory_structure.txt
 lab4_NOT.ipynb
 
+# Ignore temp and swap files
+*~
+*.swp
+*.tmp
+
 # Ignore system-specific files
 .DS_Store
 Thumbs.db
